@@ -12,9 +12,11 @@ let board, turn, winner;
 
 
 /*----- event listeners -----*/ 
-
+document.querySelector('section.markers')
+  .addEventListener('click', handleClick);
 
 /*----- functions -----*/
+init();
 
 function init() {
   board = [
@@ -28,4 +30,22 @@ function init() {
   ];
   turn = 1;
   winner = null;  // 1, -1, null (no winner), 'T' (tie)
+  render();
+}
+
+function render() {
+  // Render the board
+  board.forEach(function(colArr, colIdx) {
+    colArr.forEach(function(cell, rowIdx) {
+      let div = document.getElementById(`c${colIdx}r${rowIdx}`);
+      div.style.backgroundColor = COLORS[cell];
+    });
+  });
+}
+
+function handleClick(evt) {
+  let idx = parseInt(evt.target.id.replace('col', ''));
+  if (isNaN(idx) || winner) return;
+
+
 }
