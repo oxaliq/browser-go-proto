@@ -44,8 +44,22 @@ function render() {
 }
 
 function handleClick(evt) {
+  // get index of column's marker clicked
   let idx = parseInt(evt.target.id.replace('col', ''));
+  // make sure the MARKER was clicked
   if (isNaN(idx) || winner) return;
-
-
+  // obtain the actual column array in board array
+  let colArr = board[idx];
+  // get the index of the first 0 in the col array
+  let rowIdx = colArr.indexOf(0);
+  // if the col is full, there are no zeroes, therefore
+  // indexOf returns -1.
+  // Do nothing if no zeroes available (col full)
+  if (rowIdx === -1) return;
+  // update the col array (within the board) with
+  // the player whose turn it is
+  colArr[rowIdx] = turn;
+  // flip turns from 1 to -1; -1 to 1
+  turn *= -1;
+  render();
 }
