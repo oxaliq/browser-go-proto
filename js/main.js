@@ -9,7 +9,7 @@ const COLORS = {
 let board, turn, winner;
 
 /*----- cached element references -----*/
-
+const msgEl = document.getElementById('msg');
 
 /*----- event listeners -----*/ 
 document.querySelector('section.markers')
@@ -39,6 +39,7 @@ function render() {
     // hide/show the column's marker depending if there are 0's or not
     let marker = document.getElementById(`col${colIdx}`);
     // <conditional exp> ? <truthy thing to return> : <falsey thing to return>;
+    // This is a ternary expression that replaces the if/else below it.
     marker.style.visibility = colArr.indexOf(0) === -1 ? 'hidden' : 'visible';
     // if (colArr.indexOf(0) === -1) {
     //   marker.style.visibility = 'hidden';
@@ -50,6 +51,12 @@ function render() {
       div.style.backgroundColor = COLORS[cell];
     });
   });
+  // Render the message
+  if (winner) {
+
+  } else {
+    msgEl.textContent = `${COLORS[turn].toUpperCase()}'s Turn`;
+  }
 }
 
 function handleClick(evt) {
@@ -70,5 +77,11 @@ function handleClick(evt) {
   colArr[rowIdx] = turn;
   // flip turns from 1 to -1; -1 to 1
   turn *= -1;
+  // update the winner
+  winner = getWinner();
   render();
+}
+
+function getWinner() {
+  // return the winner, 'T' or null
 }
