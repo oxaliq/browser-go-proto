@@ -36,6 +36,15 @@ function init() {
 function render() {
   // Render the board
   board.forEach(function(colArr, colIdx) {
+    // hide/show the column's marker depending if there are 0's or not
+    let marker = document.getElementById(`col${colIdx}`);
+    // <conditional exp> ? <truthy thing to return> : <falsey thing to return>;
+    marker.style.visibility = colArr.indexOf(0) === -1 ? 'hidden' : 'visible';
+    // if (colArr.indexOf(0) === -1) {
+    //   marker.style.visibility = 'hidden';
+    // } else {
+    //   marker.style.visibility = 'visible';
+    // }
     colArr.forEach(function(cell, rowIdx) {
       let div = document.getElementById(`c${colIdx}r${rowIdx}`);
       div.style.backgroundColor = COLORS[cell];
