@@ -53,9 +53,13 @@ function render() {
   });
   // Render the message
   if (winner) {
-
+    if (winner === 'T') {
+      msgEl.textContent = "It's a Tie!";
+    } else {
+      msgEl.innerHTML = `<span style="color:${COLORS[winner]}">${COLORS[winner].toUpperCase()}</span> Wins!`;
+    }
   } else {
-    msgEl.textContent = `${COLORS[turn].toUpperCase()}'s Turn`;
+    msgEl.innerHTML = `<span style="color:${COLORS[turn]}">${COLORS[turn].toUpperCase()}</span>'s Turn`;
   }
 }
 
@@ -84,4 +88,45 @@ function handleClick(evt) {
 
 function getWinner() {
   // return the winner, 'T' or null
+  let winner = null;
+  // using a for loop because we want to stop looping if we find a winner
+  for (let colIdx = 0; colIdx < board.length; colIdx++) {
+    // check if any cells in the col lead to a winner
+    winner = checkCol(colIdx);
+    // done if winner is found, no reason to keep looking
+    if (winner) break;
+  }
+  return winner;
+}
+
+function checkCol(colIdx) {
+  let winner = null;
+  for (let rowIdx = 0; rowIdx < board[colIdx].length; rowIdx++) {
+    // using the logical OR operator (||) prevents the checks to the right 
+    // from ever running if a winner is found.  For example, if checkUp returns
+    // a truthy value, checkRight and the checkDiag will never be called
+    winner = checkUp(colIdx, rowIdx) || checkRight(colIdx, rowIdx) || checkDiag(colIdx, rowIdx, 1) || checkDiag(colIdx, rowIdx, -1);
+    if (winner) break;
+  }
+  return winner;
+}
+
+function checkUp(colIdx, rowIdx) {
+  // boundary check (can't check up if rowIdx is greater than 2)
+  if (rowIdx > 2) return null;
+  const colArr = board[colIdx];
+  // ternary expression deluxe!
+  return ( Math.abs(colArr[rowIdx] + colArr[rowIdx + 1] + colArr[rowIdx + 2] + colArr[rowIdx + 3]) === 4 ) ? colArr[rowIdx] : null;
+}
+
+function checkRight(colIdx, rowIdx) {
+  if (colIdx > 3) return null;
+  return ( Math.abs(board[colIdx][rowIdx] + board[colIdx + 1][rowIdx] + board[colIdx + 2][rowIdx] + board[colIdx + 3][rowIdx]) === 4 ) ? board[colIdx][rowIdx] : null;
+}
+
+// Notice the extra vertOffset parameter for determining whether checking up or down vertically
+function checkDiag(colIdx, rowIdx, vertOffset) {
+  // lot's of boundaries to check
+  if (colIdx > 3 || (vertOffset > 0 && rowIdx > 2) || (vertOffset < 0 && rowIdx < 3)) return null;
+  return ( Math.abs(board[colIdx][rowIdx] + board[colIdx + 1][rowIdx + vertOffset] + board[colIdx + 2][rowIdx + (vertOffset * 2)] + board[colIdx + 3][rowIdx + (vertOffset * 3)]) === 4 ) ? board[colIdx][rowIdx] : null;
 }
