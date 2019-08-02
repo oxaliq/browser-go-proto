@@ -1,42 +1,15 @@
-*, *::before, *::after {
+* {
   box-sizing: border-box;
 }
 
-body {
-  font-family: Montserrat;
-  height: 100vh;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-section.markers {
-  display: grid;
-  grid-template-columns: repeat(7, 10vmin);
-  grid-gap: 1vmin;
-  margin-bottom: 1vmin;
-}
-
-section.markers div {
-  border-top: 5vmin solid lightgrey;
-  border-left: 5vmin solid transparent;
-  border-right: 5vmin solid transparent;
-}
-
-section.markers div:hover {
-  border-top-color: grey;
-}
-
-section.board {
-  display: grid;
-  grid-template-columns: repeat(7, 10vmin);
-  grid-template-rows: repeat(6, 10vmin);
-  grid-gap: 1vmin;
-}
-
-section.board div {
-  border-radius: 50%;
-  border: 1px solid grey;
+.full-screen {
+  /* positioning will be absolue */
+  /* will take up whole screen */
+  /* background will be ~0.5 opacity */
+  /* grid-areas
+    "game-info *4" <-date, komi, handicap
+    "b-player-info*2 w-player-info*2" <- name, rank, rank-certainty
+    "record record record options" <- displays numbered record (stretch!), new game, get game record(stretch!)
+    pre-game record will display instructions
+   */
 }

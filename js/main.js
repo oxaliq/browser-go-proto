@@ -1,132 +1,83 @@
-/*----- constants -----*/
-const COLORS = {
-  '0': 'white',
-  '1': 'purple',
-  '-1': 'lime'
-};
+// global constants declared
 
-/*----- app's state (variables) -----*/ 
-let board, turn, winner;
+    // boardState, lastState, overlay (copy of boardState holding pre-move object, game end group state) 
+    // bCaptures, wCaptures, gameInfo object, playerInfo object, turn, pass, gameRecord, 
+    // handicapStones, deadShapes{}
 
-/*----- cached element references -----*/
-const msgEl = document.getElementById('msg');
 
-/*----- event listeners -----*/ 
-document.querySelector('section.markers')
-  .addEventListener('click', handleClick);
+// define initial game state
 
-/*----- functions -----*/
-init();
+    // define boardState and overlay as 2d 9x9 arrays
+    // boardState accepts values of 0, 1, -1
+    // overlay accepts values of 0, 1, -1, 'k', 'd', 'chk', 'hold', 'l', 'x'
+        // 'k' represents komi, in-game integers represent move previews, 
+        // 'chk', 'hold', 'x' and 'l' represent points checked during checkLegalMove run
+        // game-end integer represent points of territory, 'd' represents dame,
 
-function init() {
-  board = [
-    [0, 0, 0, 0, 0, 0],   // column 1 (index 0)
-    [0, 0, 0, 0, 0, 0],   // column 2 (index 1)
-    [0, 0, 0, 0, 0, 0],   // column 3 (index 2)
-    [0, 0, 0, 0, 0, 0],   // column 4 (index 3)
-    [0, 0, 0, 0, 0, 0],   // column 5 (index 4)
-    [0, 0, 0, 0, 0, 0],   // column 6 (index 5)
-    [0, 0, 0, 0, 0, 0],   // column 7 (index 6)
-  ];
-  turn = 1;
-  winner = null;  // 1, -1, null (no winner), 'T' (tie)
-  render();
-}
 
-function render() {
-  // Render the board
-  board.forEach(function(colArr, colIdx) {
-    // hide/show the column's marker depending if there are 0's or not
-    let marker = document.getElementById(`col${colIdx}`);
-    // <conditional exp> ? <truthy thing to return> : <falsey thing to return>;
-    // This is a ternary expression that replaces the if/else below it.
-    marker.style.visibility = colArr.indexOf(0) === -1 ? 'hidden' : 'visible';
-    // if (colArr.indexOf(0) === -1) {
-    //   marker.style.visibility = 'hidden';
-    // } else {
-    //   marker.style.visibility = 'visible';
-    // }
-    colArr.forEach(function(cell, rowIdx) {
-      let div = document.getElementById(`c${colIdx}r${rowIdx}`);
-      div.style.backgroundColor = COLORS[cell];
-    });
-  });
-  // Render the message
-  if (winner) {
-    if (winner === 'T') {
-      msgEl.textContent = "It's a Tie!";
-    } else {
-      msgEl.innerHTML = `<span style="color:${COLORS[winner]}">${COLORS[winner].toUpperCase()}</span> Wins!`;
-    }
-  } else {
-    msgEl.innerHTML = `<span style="color:${COLORS[turn]}">${COLORS[turn].toUpperCase()}</span>'s Turn`;
-  }
-}
+// cached elements
+    // store #menu for displaying game info
+    // store 
 
-function handleClick(evt) {
-  // get index of column's marker clicked
-  let idx = parseInt(evt.target.id.replace('col', ''));
-  // make sure the MARKER was clicked
-  if (isNaN(idx) || winner) return;
-  // obtain the actual column array in board array
-  let colArr = board[idx];
-  // get the index of the first 0 in the col array
-  let rowIdx = colArr.indexOf(0);
-  // if the col is full, there are no zeroes, therefore
-  // indexOf returns -1.
-  // Do nothing if no zeroes available (col full)
-  if (rowIdx === -1) return;
-  // update the col array (within the board) with
-  // the player whose turn it is
-  colArr[rowIdx] = turn;
-  // flip turns from 1 to -1; -1 to 1
-  turn *= -1;
-  // update the winner
-  winner = getWinner();
-  render();
-}
 
-function getWinner() {
-  // return the winner, 'T' or null
-  let winner = null;
-  // using a for loop because we want to stop looping if we find a winner
-  for (let colIdx = 0; colIdx < board.length; colIdx++) {
-    // check if any cells in the col lead to a winner
-    winner = checkCol(colIdx);
-    // done if winner is found, no reason to keep looking
-    if (winner) break;
-  }
-  return winner;
-}
+// set event listeners
+    // input listeners for player names, ranks, rank certainty (editable during game)
+        //input lister for handicap + komi (only editable pre-game)
+    // ::hover-over on board to preview move (with legal move logic)
+    // click on board to play move
+    // ::hover-over on either bowl for pass, one-level undo options (CSS implementation)
+    // click on menu items 
+    // click on kifu to display game menu
 
-function checkCol(colIdx) {
-  let winner = null;
-  for (let rowIdx = 0; rowIdx < board[colIdx].length; rowIdx++) {
-    // using the logical OR operator (||) prevents the checks to the right 
-    // from ever running if a winner is found.  For example, if checkUp returns
-    // a truthy value, checkRight and the checkDiag will never be called
-    winner = checkUp(colIdx, rowIdx) || checkRight(colIdx, rowIdx) || checkDiag(colIdx, rowIdx, 1) || checkDiag(colIdx, rowIdx, -1);
-    if (winner) break;
-  }
-  return winner;
-}
-
-function checkUp(colIdx, rowIdx) {
-  // boundary check (can't check up if rowIdx is greater than 2)
-  if (rowIdx > 2) return null;
-  const colArr = board[colIdx];
-  // ternary expression deluxe!
-  return ( Math.abs(colArr[rowIdx] + colArr[rowIdx + 1] + colArr[rowIdx + 2] + colArr[rowIdx + 3]) === 4 ) ? colArr[rowIdx] : null;
-}
-
-function checkRight(colIdx, rowIdx) {
-  if (colIdx > 3) return null;
-  return ( Math.abs(board[colIdx][rowIdx] + board[colIdx + 1][rowIdx] + board[colIdx + 2][rowIdx] + board[colIdx + 3][rowIdx]) === 4 ) ? board[colIdx][rowIdx] : null;
-}
-
-// Notice the extra vertOffset parameter for determining whether checking up or down vertically
-function checkDiag(colIdx, rowIdx, vertOffset) {
-  // lot's of boundaries to check
-  if (colIdx > 3 || (vertOffset > 0 && rowIdx > 2) || (vertOffset < 0 && rowIdx < 3)) return null;
-  return ( Math.abs(board[colIdx][rowIdx] + board[colIdx + 1][rowIdx + vertOffset] + board[colIdx + 2][rowIdx + (vertOffset * 2)] + board[colIdx + 3][rowIdx + (vertOffset * 3)]) === 4 ) ? board[colIdx][rowIdx] : null;
-}
+// functions
+    // initialize game
+        // set handicap stones
+    // render
+        // render board
+            //render moves
+            //render preview
+        // render captures
+        // render player turn marker
+        // game-end
+            // render dead group suggestion 
+            // render territory counts
+    // checkLegalMove
+        // clear overlay
+        // if move is not '0', move is illegal (opposing player or 'k' for ko)
+        // iterate through neighboring points in clockwise order
+            // if anyone is '0' move is legal - call render preview
+            // if neighboring point is opposing player
+                // cycle through opposing player group marking points as overlay: 'chk' when checked and 
+                    // overlay: 'hold' if they are neighboring points of opposing player color
+                // if any neighboring point is '0' terminate cycle and move to next neighboring point of original move
+                // if there are unchecked points of 'hold' return
+                // if no boardState: 0 points, move is legal overlay: 'l'
+                // set all 'chk' to 'x' to represent stones that will be captured upon move
+            // if neighboring point is player's
+                // cycle through player group marking points as overlay: 'chk' || 'hold'
+                // if any neighboring point is '0' ternminate cycle and mark point as 'l'
+    // set move
+        // if checkLegalMove has returned '0' i2llegal move message?
+        // if move state is 'l' 
+            // push boardState to lastState
+            // push 'l' move to boardState
+            // resolve captures
+                // for all 'x' in overlay 
+                    // count number and add to playerCaptures
+                    // set boardState to '0'
+        // pass--
+        // push move to game record
+    // game record: [ 0: handicapStones Obj, 1: 1stMove([moveState[],moveState[][])]
+    // pass() pass++ and player turn to other player
+    // gameEnd when pass = 2
+        // search empty spaces on board for deadShapes
+            //  compare spaces to rotations of deadShapes[...]
+            // 'd' if empty spaces 
+        // return dead group suggestion
+        // users can flip status of any dead group overlay( 1, -1 ) 
+        // confirm state
+            // calculate score = points in overlay for each player + captures
+            // render final board state with dead groups removed
+        // log game record
+            // stringify according to .sgf format
+            // log as text

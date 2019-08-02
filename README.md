@@ -1,9 +1,41 @@
-# SEI-CC-4 - Build a Browser Game
-## Connect Four
+# Go 
+#### Minimum Deliverable Product
 
-After this repo is cloned, you will be able to syncronize with its most recent commit by running the following two commands:
+a working game of go for a 9x9 board that
+* displays well on mobile
+* initiates a game with suggested handicap and komi according to rank input
+* * displays how to play in open screen
+* lets the user know whose turn it is
+* lets the user know which moves are legal and calculates those accordingly
+* * logs ko
+* * implement a search algorithm to avoid moving into dead space
+* correctly removes captured stones and adds them to capturing player's score
+* logs game record
+* maintains a one move game state history for 'undo mismove'
+* allows players to pass or resign
+* * ends game upon 2 consecutive passes
+* calculates estimated score at game end
+* * compares board groups to most common dead shapes
+* * allows users to override dead group estimates and submit finalized score to game record
+* displays game record as string
 
-1. `git fetch --all`
-2. `git reset --hard origin/master`
+stretch goals
+* uses stone placement GUI for resign and pass
+* converts string to .sgf format
+* allows users to edit game info mid game
+* add stone placement sounds
+  
+superstretch goals
+* allows users to select board size (9x9, 13x13, 19x19)
+* allows users to load .sgf main lines
+* allow for responsivity in the form of
+* * 9x9 games simply stretch with screen size
+* * larger games allow small displays one click to zoom before running legal move calculations and move placement
 
-Note that running the above commands will completely replace all of the files with those in the repo - **ANY CODE YOU HAVE WRITTEN WILL BE REPLACED**.
+<!-- describe go with images of game-->
+
+<!-- List of technologies used -->
+
+<!-- How to play, link to deploy -->
+
+<!-- roadmap -->
