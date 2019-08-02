@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  margin: 0;
 }
 
 .full-screen {
@@ -12,4 +13,106 @@
     "record record record options" <- displays numbered record (stretch!), new game, get game record(stretch!)
     pre-game record will display instructions
    */
+}
+
+content {
+  background-color: #61a6c2;
+  display: grid;
+  grid-template-columns: 100vmin;
+  grid-template-rows: 1fr 100vmin 1fr;
+  grid-template-areas:
+    "white-pos"
+    "board-space"
+    "black-pos"
+}
+
+.player-pos {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.player-pos#white-pos {
+  grid-area: white-pos;
+}
+
+.player-pos#black-pos {
+  grid-area: black-pos;
+  flex-direction: row-reverse;
+}
+
+#kifu {
+  order: 0;
+}
+
+.bowl {
+  order: -1;
+  margin: 20px;
+  height: 8vh;
+  width: 8vh;
+  border: solid black;
+  border-radius: 50%;
+}
+
+.caps {
+  order: 1;
+}
+
+#board-space {
+  margin: 0 auto;
+  grid-area: board-space;
+  display: flex;
+  flex-direction: column;
+  background-color: #EAB24E;
+  width: 90vmin;
+  height: 90vmin;
+  padding: 1vmin;
+}
+
+table {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  height: 81vmin;
+  width: 81min;
+  margin: auto;
+}
+
+td {
+  height: 9vmin;
+  width: 9vmin;
+  background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
+  border-radius: 50% solid black;
+  color: black;
+}
+
+td[id^="0,"] {
+  background: conic-gradient( rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%);
+}
+
+#row-8 td {
+  background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%); 
+}
+
+td[id$="0"] {
+  background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 99%, #000 100%);
+}
+
+td[id$="8"] {
+  background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
+}
+
+td[id="0,0"] {
+  background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%);
+}
+
+td#0,8 {
+  background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
+}
+td#8,0 {
+  background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
+}
+td#8,8 {
+  background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }

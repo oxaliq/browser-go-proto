@@ -5,26 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="css/reset.css" type="stylesheet">
-    <link rel="stylesheet" href="css/main.css" type="stylesheet">
-    <script src="js/main.js"></script>
-    <title>Go Cats</title>
+    <link href="css/main.css" rel="stylesheet" type="text/css" />    <script src="js/main.js"></script>
+    <title>Browser Go</title>
 </head>
 <body>
-    <div id="menu" class="full-screen">
-        <!-- for displaying new game screen and status during game -->
+  <div id="menu" class="full-screen">
+    <!-- for displaying new game screen and status during game -->
+  </div>
+  <!-- may need add'l .full-screen or other div for board overlay -->
+  <content>
+    <div id="white-pos" class="player-pos">
+      <div id="white-bowl" class="bowl">White Bowl</div>
+      <div id="white-caps" class="caps">White Captures</div>
     </div>
-    <!-- may need add'l .full-screen or other div for board overlay -->
-    <content>
-        <div id="white-pos" class="player-pos">
-            <div id="white-bowl" class="bowl"></div>
-            <div id="white-caps" class="caps"></div>
-        </div>
-        <div id="board"></div>
-        <div id="black-pos" class="player-pos">
-            <div id="black-bowl" class="bowl"></div>
-            <div id="black-caps" class="caps"></div>
-            <div id="kifu"></div>
-        </div>
-    </content>
+    <div id="board-space">
+      <table id="board">
+        <tr id="row-0">
+          <td id="0,0"></td>
+          <td id="0,1"></td>
+          <td id="0,2"></td>
+          <td id="0,3"></td>
+          <td id="0,4"></td>
+          <td id="0,5"></td>
+          <td id="0,6"></td>
+          <td id="0,7"></td>
+          <td id="0,8"></td>
+        </tr>
+        <tr id="row-1">
+          <td id="1,0"></td>
+          <td id="1,1"></td>
+          <td id="1,2"></td>
+          <td id="1,3"></td>
+          <td id="1,4"></td>
+          <td id="1,5"></td>
+          <td id="1,6"></td>
+          <td id="1,7"></td>
+          <td id="1,8"></td>
+        </tr>
+        <tr id="row-2">
+          <td id="2,0"></td>
+          <td id="2,1"></td>
+          <td id="2,2"></td>
+          <td id="2,3"></td>
+          <td id="2,4"></td>
+          <td id="2,5"></td>
+          <td id="2,6"></td>
+          <td id="2,7"></td>
+          <td id="2,8"></td>
+        </tr>
+        <tr id="row-3">
+          <td id="3,0"></td>
+          <td id="3,1"></td>
+          <td id="3,2"></td>
+          <td id="3,3"></td>
+          <td id="3,4"></td>
+          <td id="3,5"></td>
+          <td id="3,6"></td>
+          <td id="3,7"></td>
+          <td id="3,8"></td>
+        </tr>
+        <tr id="row-4">
+          <td id="4,0"></td>
+          <td id="4,1"></td>
+          <td id="4,2"></td>
+          <td id="4,3"></td>
+          <td id="4,4"></td>
+          <td id="4,5"></td>
+          <td id="4,6"></td>
+          <td id="4,7"></td>
+          <td id="4,8"></td>
+        </tr>
+        <tr id="row-5">
+          <td id="5,0"></td>
+          <td id="5,1"></td>
+          <td id="5,2"></td>
+          <td id="5,3"></td>
+          <td id="5,4"></td>
+          <td id="5,5"></td>
+          <td id="5,6"></td>
+          <td id="5,7"></td>
+          <td id="5,8"></td>
+        </tr>
+        <tr id="row-6">
+          <td id="6,0"></td>
+          <td id="6,1"></td>
+          <td id="6,2"></td>
+          <td id="6,3"></td>
+          <td id="6,4"></td>
+          <td id="6,5"></td>
+          <td id="6,6"></td>
+          <td id="6,7"></td>
+          <td id="6,8"></td>
+        </tr>
+        <tr id="row-7">
+          <td id="7,0"></td>
+          <td id="7,1"></td>
+          <td id="7,2"></td>
+          <td id="7,3"></td>
+          <td id="7,4"></td>
+          <td id="7,5"></td>
+          <td id="7,6"></td>
+          <td id="7,7"></td>
+          <td id="7,8"></td>
+        </tr>
+        <tr id="row-8">
+          <td id="8,0"></td>
+          <td id="8,1"></td>
+          <td id="8,2"></td>
+          <td id="8,3"></td>
+          <td id="8,4"></td>
+          <td id="8,5"></td>
+          <td id="8,6"></td>
+          <td id="8,7"></td>
+          <td id="8,8"></td>
+        </tr>
+      </table>
+    </div>
+    <div id="black-pos" class="player-pos">
+      <div id="black-bowl" class="bowl">Black Bowl</div>
+      <div id="black-caps" class="caps">Black Captures</div>
+      <div id="kifu">kifu</div>
+    </div>
+  </content>
 </body>
 </html>

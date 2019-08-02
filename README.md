@@ -2,7 +2,7 @@
 #### Minimum Deliverable Product
 
 a working game of go for a 9x9 board that
-* displays well on mobile
+* displays well on mobile or desktop
 * initiates a game with suggested handicap and komi according to rank input
 * * displays how to play in open screen
 * lets the user know whose turn it is
@@ -11,7 +11,6 @@ a working game of go for a 9x9 board that
 * * implement a search algorithm to avoid moving into dead space
 * correctly removes captured stones and adds them to capturing player's score
 * logs game record
-* maintains a one move game state history for 'undo mismove'
 * allows players to pass or resign
 * * ends game upon 2 consecutive passes
 * calculates estimated score at game end
@@ -21,6 +20,7 @@ a working game of go for a 9x9 board that
 
 stretch goals
 * uses stone placement GUI for resign and pass
+* maintains a one move game state history for 'undo mismove'
 * converts string to .sgf format
 * allows users to edit game info mid game
 * add stone placement sounds
