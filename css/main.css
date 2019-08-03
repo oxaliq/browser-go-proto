@@ -87,32 +87,74 @@ td {
   color: black;
 }
 
-td[id^="0,"] {
+td[id^="1,"] {
   background: conic-gradient( rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%);
 }
 
-#row-8 td {
+#row-9 td {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%); 
 }
 
-td[id$="0"] {
+td[id$="1"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 99%, #000 100%);
 }
 
-td[id$="8"] {
+td[id$="9"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }
 
-td[id="0,0"] {
+td[id="1,1"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%);
 }
 
-td#0,8 {
+td[id="1,9"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }
-td#8,0 {
+td[id="9,1"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }
-td#8,8 {
+td[id="9,9"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }
+
+td .stone {
+  width: 85%;
+  height: 85%;
+  border-radius: 50%;
+  margin: auto;
+}
+td .stone .dot {
+  width: 35%;
+  height: 35%;
+  border-radius: 50%;
+  margin: auto;
+}
+
+td .stone .ko {
+  
+}
+td .stone .white {
+  
+}
+td .stone .black {
+  background-color: black;
+}
+td .stone .transparent {
+
+}
+td .dot .white {
+
+}
+td .dot .black {
+
+}
+td .dot .transparent {
+
+}
+td .dot .dame {
+
+}
+td .dot .seki {
+
+}
+

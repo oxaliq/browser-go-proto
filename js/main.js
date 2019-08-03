@@ -1,23 +1,39 @@
 /*----- constants -----*/
 // game state object {gameMeta object, playerMeta object, turn, pass, gameRecord, bCaptures, wCaptures}
+const STONES_CLASS = {
+  '-1': 'white',
+  '0': 'transparent',
+  '1': 'black',
+  'k': 'ko'
+}
+
+const DOTS_CLASS = {
+  '-1': 'white',
+  '0': 'transparent',
+  '1': 'black',
+  'd': 'dame',
+  's': 'seki'
+}
+
 const gameState = {
   winner: null,
   turn: null, // turn logic depends on handicap stones
   pass: null,
   komi: null, // komi depends on handicap stones
   handicap: null,
+  boardSize: 9,
   playerState: {
     bCaptures: null,
     wCaptures: null
   },
   gameMeta: { // declared at game start and not editable after
-    date: null// contains metadata 
+    date: null // contains metadata 
   },
   playerMeta: { // editable during game
     b: {
       name: null,
       rank: null, 
-      rankCertain: false 
+      rankCertain: false
     },
     w: {
       name: null,
@@ -25,40 +41,56 @@ const gameState = {
       rankCertain: false
     },
   },
+  groups: {},
   gameRecord : []
 }
 
-    // boardState [point objects-contain overlay] lastState (created from boardState)
-    // groups? 
-    // deadShapes{}
+
+// deadShapes{}
 
 // index represents handicap placement, eg handiPlace[1] = { (3, 3), (7, 7) }
 const handiPlace = [ 0, 
-  [ { rPos: 3, cPos: 3 }, { rPos: 7, cPos: 7 } ], 
-  [ { rPos: 3, cPos: 3 }, { rPos: 7, cPos: 7 }, { rPos: 3, cPos: 7 } ], 
-  [ { rPos: 3, cPos: 3 }, { rPos: 7, cPos: 7 }, { rPos: 3, cPos: 7 }, { rPos: 7, cPos: 3 } ]];
-
-/*----- app's state (variables) -----*/
-
-// define initial game state
-let boardState;
-
-// Class Point {
-//     rPos: 1,
-//     cPos: 1,
-//     neighbors: {
-//       top: null,
-//       btm: null,
-//       lft: null,
-//       rgt: null
-//     }
-//     checkLegal: function() {
-      
-//     }
-//   }
-
-
-  // modeling 1,1 point for 
+  [ [ 3, 3 ], [ 7, 7 ] ], 
+  [ [ 3, 3 ], [ 7, 7 ], [ 3, 7 ] ], 
+  [ [ 3, 3 ], [ 7, 7 ], [ 3, 7 ], [ 7, 3 ] ] ];
+  
+  /*----- app's state (variables) -----*/
+  
+  // define initial game state
+  
+  class Point {
+    constructor(x, y) {
+      this.pos = [ x, y ]
+      this.stone = 0; // this is where move placement will go 0, 1, -1 'k'
+      this.overlay = 0; // this is where 'chk', 'l'
+      this.neighbors = {
+        top: {},
+        btm: {},
+        lft: {},
+        rgt: {}
+      },
+      // neighbor exists it's point is stored as { rPos, cPos}
+      this.neighbors.top = x > 1 ? [ x - 1, y ] : null;
+      this.neighbors.btm = x < gameState.boardSize ? [ x + 1, y ] : null;
+      this.neighbors.rgt = y > 1 ? [ x, y - 1 ] : null;
+      this.neighbors.lft = y < gameState.boardSize ? [ x, y + 1 ] : null;
+      // checkLegal: function() {
+      //   this.cellValue = (for neighbor in this.neighbors) {
+      //     boardState.find( val => {
+      //       if ( val.pos === neighbor.pos && val.stone = 0) { /*cell empty*/ }
+      //     });
+      //   }
+      //   }
+      }
+    };
+    
+    // boardState [point objects-contain overlay] lastState (created from boardState)
+    let boardState = [ new Point(1,1), new Point(1,2), new Point(1,3),
+      new Point(2,1), new Point(2,2), new Point(2,3),
+      new Point(3,1), new Point(3,2), new Point(3,3),
+     ];
+    
+    // modeling 1,1 point for 
   // define boardState and overlay as 2d 9x9 arrays
   // boardState accepts values of 0, 1, -1
   // overlay accepts values of 0, 1, -1, 'k', 'd', 'chk', 'hold', 'l', 'x'
@@ -76,29 +108,53 @@ let boardState;
   // input listeners for player names, ranks, rank certainty (editable during game)
   //input lister for handicap + komi (only editable pre-game)
   // ::hover-over on board to preview move (with legal move logic)
+  document.getElementById('board').addEventListener('mousemove', checkLegal);
   // click on board to play move
+  document.getElementById('board').addEventListener('click', placeStone);
   // ::hover-over on either bowl for pass, one-level undo options (CSS implementation)
   // click on menu items 
   // click on kifu to display game menu
   
   /*----- functions -----*/
-init();
+// init();
 
-  function init() {
-    gameState.winner = null;
-    // gameState.turn = ? : ; // get turn from consequences of player input
-    gameState.pass = null;
-    // gameState.komi = ; // get komi from player input
-    // gameState.handicap = ; // get handicap from player input
-    gameState.playerState.bCaptures = 0;
-    gameState.playerState.wCaptures = 0;
-    // gameState.gameMeta.date = // get from browser window
-    // get any future meta from player input
-    // gameState.playerMeta.b // get from player input
-    // gameState.playerMeta.w // get from player input
-    gameState.gameRecord = []; // clear game record from previous game
-    // gameState.boardState // create board from user input
-  };
+function checkLegal(evt) {
+  let hover = [ parseInt(evt.target.parentNode.id[0]), parseInt(evt.target.parentNode.id[2]) ];
+  console.log(hover);
+  
+}
+
+function placeStone(evt) {
+
+  console.log('click!');
+  let placement = [ parseInt(evt.target.parentNode.id[0]), parseInt(evt.target.parentNode.id[2]) ];
+  //checks that this placement was marked as legal
+    // checks for placement and pushes to cell
+  boardState.find( point => {
+    // gets board point and ensures legal
+    point.stone = point.pos[0] === placement[0] && point.pos[1] === placement[1] 
+      && point.overlay === 'l'
+      ? turn : point.stone;
+  });
+}
+
+function init() {
+  gameState.winner = null;
+  // gameState.turn = ? : ; // get turn from consequences of player input
+  gameState.pass = null;
+  // gameState.komi = ; // get komi from player input
+  // gameState.handicap = ; // get handicap from player input
+  gameState.playerState.bCaptures = 0;
+  gameState.playerState.wCaptures = 0;
+  // gameState.gameMeta.date = // get from browser window
+  // get any future meta from player input
+  // gameState.playerMeta.b // get from player input
+  // gameState.playerMeta.w // get from player input
+  gameState.gameRecord = []; // clear game record from previous game
+  // gameState.boardState // create board from user input
+
+  //need init player meta
+};
     
 
   // functions
