@@ -55,7 +55,9 @@ const handiPlace = [ 0,
   [ [ 3, 3 ], [ 7, 7 ], [ 3, 7 ], [ 7, 3 ] ] ];
   
   /*----- app's state (variables) -----*/
-  
+let boardState;
+
+
   // define initial game state
   
 class Point {
@@ -79,7 +81,6 @@ class Point {
     let neighborsArr = [];
     for ( let neighbor in this.neighbors ) {
       let nbr = this.neighbors[neighbor];
-      console.log(nbr !== null)
       // neighbor exists it's point is stored as { rPos, cPos}
       if ( nbr !== null ) {
       neighborsArr.push(boardState.find( val =>  val.pos[0] === nbr[0] && val.pos[1] === nbr[1] ))
@@ -93,60 +94,51 @@ class Point {
     return !!neighborsArr.find(val => val.stone === 0);
     // return true if neighboring point is empty;
   }
-  captureNeighbor = () => {
+  checkCapture = () => {
     let neighborsArr = this.checkNeighbors();
-    // neighborsArr.find(val => val.point === turn * -1 );
-    // console.log(neighborsArr.find(val => val.point === turn * -1 ))
+    let oppStones = neighborsArr.filter(val => {
+      if (val.stone === gameState.turn * -1) return val;
+    });
+    console.log(oppStones);
+    for ( let oppStone in oppStones ) {
+      console.log(oppStones[oppStone])
+      console.log(oppStones[oppStone].emptyNeighbor()) // will need to call something like .liveGroup() instead
+      return oppStones[oppStone].emptyNeighbor(); //return
+    }
   }
-  // captureNeighbor = ()
-  // livingNeighbor()
+  // return true if move would form/join a living friendly group ad
+  // checkGroup = () => {
+  // 
+  // }
 }
 
+let boardCreator = new Array(gameState.boardSize).fill(gameState.boardSize);
+// boardState [point objects-contain overlay] lastState (created from boardState)
 
-    
-    // boardState [point objects-contain overlay] lastState (created from boardState)
-let boardState = [ new Point(1,1), new Point(1,2), new Point(1,3), new Point(1,4), new Point(1,5), new Point(1,6), new Point(1,7), new Point(1,8), new Point(1,9),
-  new Point(2,1), new Point(2,2), new Point(2,3), new Point(2,4), new Point(2,5), new Point(2,6), new Point(2,7), new Point(2,8), new Point(2,9),
-  new Point(3,1), new Point(3,2), new Point(3,3), new Point(3,4), new Point(3,5), new Point(3,6), new Point(3,7), new Point(3,8), new Point(3,9),
-  new Point(4,1), new Point(4,2), new Point(4,3), new Point(4,4), new Point(4,5), new Point(4,6), new Point(4,7), new Point(4,8), new Point(4,9),
-  new Point(5,1), new Point(5,2), new Point(5,3), new Point(5,4), new Point(5,5), new Point(5,6), new Point(5,7), new Point(5,8), new Point(5,9),
-  new Point(6,1), new Point(6,2), new Point(6,3), new Point(6,4), new Point(6,5), new Point(6,6), new Point(6,7), new Point(6,8), new Point(6,9),
-  new Point(7,1), new Point(7,2), new Point(7,3), new Point(7,4), new Point(7,5), new Point(7,6), new Point(7,7), new Point(7,8), new Point(7,9),
-  new Point(8,1), new Point(8,2), new Point(8,3), new Point(8,4), new Point(8,5), new Point(8,6), new Point(8,7), new Point(8,8), new Point(8,9),
-  new Point(9,1), new Point(9,2), new Point(9,3), new Point(9,4), new Point(9,5), new Point(9,6), new Point(9,7), new Point(9,8), new Point(9,9)
-];
+// boardState accepts values of 0, 1, -1
+// overlay accepts values of 0, 1, -1, 'k', 'd', 'chk', 'hold', 'l', 'x'
+// 'k' represents komi, in-game integers represent move previews, 
+// 'chk', 'hold', 'x' and 'l' represent points checked during checkLegalMove run
+// game-end integer represent points of territory, 'd' represents dame,
 
-boardState[0].checkNeighbors();
-boardState[1].checkNeighbors();
-boardState[2].checkNeighbors();
 
-    
-    // modeling 1,1 point for 
-  // define boardState and overlay as 2d 9x9 arrays
-  // boardState accepts values of 0, 1, -1
-  // overlay accepts values of 0, 1, -1, 'k', 'd', 'chk', 'hold', 'l', 'x'
-  // 'k' represents komi, in-game integers represent move previews, 
-  // 'chk', 'hold', 'x' and 'l' represent points checked during checkLegalMove run
-  // game-end integer represent points of territory, 'd' represents dame,
-  
-  
-  /*----- cached element references -----*/
-  // store #menu for displaying game info
-  // store 
-  
-  
-  /*----- event listeners -----*/
-  // input listeners for player names, ranks, rank certainty (editable during game)
-  //input lister for handicap + komi (only editable pre-game)
-  // ::hover-over on board to preview move (with legal move logic)
-  document.getElementById('board').addEventListener('mousemove', checkLegal);
-  // click on board to play move
-  document.getElementById('board').addEventListener('click', placeStone);
-  // ::hover-over on either bowl for pass, one-level undo options (CSS implementation)
-  // click on menu items 
-  // click on kifu to display game menu
-  
-  /*----- functions -----*/
+/*----- cached element references -----*/
+// store #menu for displaying game info
+// store 
+
+
+/*----- event listeners -----*/
+// input listeners for player names, ranks, rank certainty (editable during game)
+//input lister for handicap + komi (only editable pre-game)
+// ::hover-over on board to preview move (with legal move logic)
+document.getElementById('board').addEventListener('mousemove', checkLegal);
+// click on board to play move
+document.getElementById('board').addEventListener('click', placeStone);
+// ::hover-over on either bowl for pass, one-level undo options (CSS implementation)
+// click on menu items 
+// click on kifu to display game menu
+
+/*----- functions -----*/
 init();
 
 let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
@@ -163,22 +155,27 @@ function checkLegal(evt) {
   // if point is not empty check if neighboring point is empty
   if (!point.emptyNeighbor()) {
     //if neighboring point is not empty check if friendly group is alive
+    point.checkCapture();
+    // if (point.checkCapture) return point.overlay = 'l';
     
     //if neighboring point is not empty check if enemy group is captured
+    // if (point.checkGroup) return point.overlay = 'l'
     
+    
+    return;
   } else {
     point.overlay = 'l';
   }
   // if neighboring point is 
-
-
-
+  
+  
+  
   render(point);
 }
 
 function placeStone(evt) {
   console.log('click!');
-
+  
   let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   // checks for placement and pushes to cell
   let point = findPointFromIdx(placement);
@@ -203,9 +200,19 @@ function init() {
   // gameState.playerMeta.w // get from player input
   gameState.gameRecord = []; // clear game record from previous game
   // gameState.boardState // create board from user input
-
+  
   //need init player meta
-
+  
+  boardState = [ new Point(1,1), new Point(1,2), new Point(1,3), new Point(1,4), new Point(1,5), new Point(1,6), new Point(1,7), new Point(1,8), new Point(1,9),
+  new Point(2,1), new Point(2,2), new Point(2,3), new Point(2,4), new Point(2,5), new Point(2,6), new Point(2,7), new Point(2,8), new Point(2,9),
+  new Point(3,1), new Point(3,2), new Point(3,3), new Point(3,4), new Point(3,5), new Point(3,6), new Point(3,7), new Point(3,8), new Point(3,9),
+  new Point(4,1), new Point(4,2), new Point(4,3), new Point(4,4), new Point(4,5), new Point(4,6), new Point(4,7), new Point(4,8), new Point(4,9),
+  new Point(5,1), new Point(5,2), new Point(5,3), new Point(5,4), new Point(5,5), new Point(5,6), new Point(5,7), new Point(5,8), new Point(5,9),
+  new Point(6,1), new Point(6,2), new Point(6,3), new Point(6,4), new Point(6,5), new Point(6,6), new Point(6,7), new Point(6,8), new Point(6,9),
+  new Point(7,1), new Point(7,2), new Point(7,3), new Point(7,4), new Point(7,5), new Point(7,6), new Point(7,7), new Point(7,8), new Point(7,9),
+  new Point(8,1), new Point(8,2), new Point(8,3), new Point(8,4), new Point(8,5), new Point(8,6), new Point(8,7), new Point(8,8), new Point(8,9),
+  new Point(9,1), new Point(9,2), new Point(9,3), new Point(9,4), new Point(9,5), new Point(9,6), new Point(9,7), new Point(9,8), new Point(9,9)
+  ];
   render();
 };
     
