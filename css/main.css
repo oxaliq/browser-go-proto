@@ -56,6 +56,14 @@ content {
 
 #kifu {
   order: 0;
+  height: 10vh;
+  width: 8vh;
+  background-color: #FFF;
+  transform: rotate(-20deg);
+}
+
+#kifu table {
+
 }
 
 .bowl {
@@ -66,15 +74,18 @@ content {
   /* border: solid black; */
   border-radius: 50%;
   background-color: rgb(116, 48, 17);
+  box-shadow: -1vmin 2vmin 3vmin rgba(83, 53, 35, 0.61);
 }
 
 .caps {
+  color: #FFF;
   order: 1;
   margin: 1vh;
   height: 6vh;
   width: 6vh;
   border-radius: 50%;
   background-color: rgb(116, 48, 17);
+  box-shadow: -0.5vmin 1vmin 3vmin rgba(83, 53, 35, 0.61);
 }
 
 #board-space {
@@ -86,9 +97,14 @@ content {
   width: 90vmin;
   height: 90vmin;
   padding: 1vmin;
+  z-index: 1;
+  box-shadow: -2vmin 4vmin 3vmin rgba(145, 92, 23, 0.5);
 }
 
-table {
+#board-space::after {
+}
+
+#board-space table {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
@@ -97,7 +113,7 @@ table {
   margin: auto;
 }
 
-td {
+#board-space td {
   height: 9vmin;
   width: 9vmin;
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
@@ -108,33 +124,35 @@ td {
   vertical-align: middle;
 }
 
-td[id^="1"] {
+#board-space td[id^="1"] {
   background: conic-gradient( rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%);
 }
 
-td[id^="9"] {
+#board-space td[id^="9"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%); 
 }
 
-td[id$="1"] {
+#board-space td[id$="1"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 99%, #000 100%);
 }
 
-td[id$="9"] {
+#board-space td[id$="9"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }
 
-td[id="1,1"] {
+#board-space td[id="1,1"] {
   background: conic-gradient( rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%);
 }
 
-td[id="1,9"] {
+#board-space td[id="1,9"] {
   background: conic-gradient( rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76% );
 }
-td[id="9,1"] {
+
+#board-space td[id="9,1"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 99%, #000 100%);
 }
-td[id="9,9"] {
+
+#board-space td[id="9,9"] {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }
 

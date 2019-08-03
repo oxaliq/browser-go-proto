@@ -95,21 +95,20 @@ class Point {
     // return true if neighboring point is empty;
   }
   checkCapture = () => {
-    let neighborsArr = this.checkNeighbors();
-    let oppStones = neighborsArr.filter(val => {
-      if (val.stone === gameState.turn * -1) return val;
-    });
-    console.log(oppStones);
-    for ( let oppStone in oppStones ) {
-      console.log(oppStones[oppStone])
-      console.log(oppStones[oppStone].emptyNeighbor()) // will need to call something like .liveGroup() instead
-      return oppStones[oppStone].emptyNeighbor(); //return
-    }
+    return !this.liveGroup(gameState.turn * -1).some(val => val.emptyNeighbor());
   }
-  // return true if move would form/join a living friendly group ad
-  // checkGroup = () => {
-  // 
-  // }
+
+  checkGroup = () => {
+    return this.liveGroup(gameState.turn).some(val => val.emptyNeighbor());
+    // returns first neighbor of turn color that has an empty neighbor
+  } 
+
+  liveGroup = (stone) => {
+    return this.checkNeighbors().filter(val => {
+      if ( val.stone === stone ) return val;
+    });
+     //returns an array of neighbors for the value of stone
+  }
 }
 
 let boardCreator = new Array(gameState.boardSize).fill(gameState.boardSize);
@@ -131,7 +130,7 @@ let boardCreator = new Array(gameState.boardSize).fill(gameState.boardSize);
 // input listeners for player names, ranks, rank certainty (editable during game)
 //input lister for handicap + komi (only editable pre-game)
 // ::hover-over on board to preview move (with legal move logic)
-document.getElementById('board').addEventListener('mousemove', checkLegal);
+document.getElementById('board').addEventListener('mousemove', hoverPreview);
 // click on board to play move
 document.getElementById('board').addEventListener('click', placeStone);
 // ::hover-over on either bowl for pass, one-level undo options (CSS implementation)
@@ -143,55 +142,52 @@ init();
 
 let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
 
-function checkLegal(evt) {
+function hoverPreview(evt) {
+  // renders preview stone if move is legal
   let hover = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(hover);
-  
-  // working old way assigns legal
-  // point.overlay = point.stone !== 0 ? 0 : 'l'; 
-  
+  if (checkLegal(point)) {
+    point.overlay = 'l';
+    render(point);
+  }
+}
+
+function checkLegal(point) {
   // first step in logic: is point occupied, or in ko
-  if (point.stone) return;
+  if (point.stone) return false;
+  console.log('reading empty');
+  console.log(point.emptyNeighbor())
   // if point is not empty check if neighboring point is empty
   if (!point.emptyNeighbor()) {
-    //if neighboring point is not empty check if friendly group is alive
-    point.checkCapture();
-    // if (point.checkCapture) return point.overlay = 'l';
-    
     //if neighboring point is not empty check if enemy group is captured
-    // if (point.checkGroup) return point.overlay = 'l'
-    
-    
-    return;
-  } else {
-    point.overlay = 'l';
+    if (!point.checkCapture()) return false;
+    //if neighboring point is not empty check if friendly group is alive
+    if (!point.checkGroup()) return false;
+    return true;
   }
-  // if neighboring point is 
-  
-  
-  
   render(point);
+  return true;
 }
 
 function placeStone(evt) {
-  console.log('click!');
-  
-  let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   // checks for placement and pushes to cell
+  let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(placement);
-  // console.log(placement);
   //checks that this placement was marked as legal
-  point.stone = point.overlay === 'l' ? gameState.turn : point.stone;
+  if ( !checkLegal(point) ) return;
+  point.stone = gameState.turn;
   gameState.turn*= -1;
+  for (let point in boardState) {
+    point.overlay = '';
+  }
   render();
 }
-
 function init() {
   gameState.winner = null;
-  // gameState.turn = ? : ; // get turn from consequences of player input
   gameState.pass = null;
   // gameState.komi = ; // get komi from player input
   // gameState.handicap = ; // get handicap from player input
+  // gameState.turn = gameState.handicap ? -1 : 1;
   gameState.playerState.bCaptures = 0;
   gameState.playerState.wCaptures = 0;
   // gameState.gameMeta.date = // get from browser window
