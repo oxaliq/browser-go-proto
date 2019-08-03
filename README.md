@@ -1,4 +1,4 @@
-# Go 
+# Browser Go 
 #### Minimum Deliverable Product
 
 a working game of go for a 9x9 board that

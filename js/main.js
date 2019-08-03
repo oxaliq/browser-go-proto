@@ -12,7 +12,6 @@ const DOTS_DATA = {
   '0': 'none',
   '1': 'black',
   'd': 'dame',
-  'l': 'legal',
   's': 'seki'
 }
 
@@ -69,27 +68,57 @@ class Point {
       btm: {},
       lft: {},
       rgt: {}
-    },
-    // neighbor exists it's point is stored as { rPos, cPos}
+    }
     this.neighbors.top = x > 1 ? [ x - 1, y ] : null;
     this.neighbors.btm = x < gameState.boardSize ? [ x + 1, y ] : null;
     this.neighbors.rgt = y > 1 ? [ x, y - 1 ] : null;
     this.neighbors.lft = y < gameState.boardSize ? [ x, y + 1 ] : null;
-    // checkLegal: function() {
-    //   this.cellValue = (for neighbor in this.neighbors) {
-    //     boardState.find( val => {
-    //       if ( val.pos === neighbor.pos && val.stone = 0) { /*cell empty*/ }
-    //     });
-    //   }
-    //   }
-    }
-  };
+  } 
+  // first 
+  checkNeighbors = () => {
+    let neighborsArr = [];
+    for ( let neighbor in this.neighbors ) {
+      let nbr = this.neighbors[neighbor];
+      console.log(nbr !== null)
+      // neighbor exists it's point is stored as { rPos, cPos}
+      if ( nbr !== null ) {
+      neighborsArr.push(boardState.find( val =>  val.pos[0] === nbr[0] && val.pos[1] === nbr[1] ))
+      }
+    };
+    // returns array of existing neighbors to calling function
+    return neighborsArr;
+  }
+  emptyNeighbor = () => {
+    let neighborsArr = this.checkNeighbors();
+    return !!neighborsArr.find(val => val.stone === 0);
+    // return true if neighboring point is empty;
+  }
+  captureNeighbor = () => {
+    let neighborsArr = this.checkNeighbors();
+    // neighborsArr.find(val => val.point === turn * -1 );
+    // console.log(neighborsArr.find(val => val.point === turn * -1 ))
+  }
+  // captureNeighbor = ()
+  // livingNeighbor()
+}
+
+
     
     // boardState [point objects-contain overlay] lastState (created from boardState)
-let boardState = [ new Point(1,1), new Point(1,2), new Point(1,3),
-  new Point(2,1), new Point(2,2), new Point(2,3),
-  new Point(3,1), new Point(3,2), new Point(3,3),
+let boardState = [ new Point(1,1), new Point(1,2), new Point(1,3), new Point(1,4), new Point(1,5), new Point(1,6), new Point(1,7), new Point(1,8), new Point(1,9),
+  new Point(2,1), new Point(2,2), new Point(2,3), new Point(2,4), new Point(2,5), new Point(2,6), new Point(2,7), new Point(2,8), new Point(2,9),
+  new Point(3,1), new Point(3,2), new Point(3,3), new Point(3,4), new Point(3,5), new Point(3,6), new Point(3,7), new Point(3,8), new Point(3,9),
+  new Point(4,1), new Point(4,2), new Point(4,3), new Point(4,4), new Point(4,5), new Point(4,6), new Point(4,7), new Point(4,8), new Point(4,9),
+  new Point(5,1), new Point(5,2), new Point(5,3), new Point(5,4), new Point(5,5), new Point(5,6), new Point(5,7), new Point(5,8), new Point(5,9),
+  new Point(6,1), new Point(6,2), new Point(6,3), new Point(6,4), new Point(6,5), new Point(6,6), new Point(6,7), new Point(6,8), new Point(6,9),
+  new Point(7,1), new Point(7,2), new Point(7,3), new Point(7,4), new Point(7,5), new Point(7,6), new Point(7,7), new Point(7,8), new Point(7,9),
+  new Point(8,1), new Point(8,2), new Point(8,3), new Point(8,4), new Point(8,5), new Point(8,6), new Point(8,7), new Point(8,8), new Point(8,9),
+  new Point(9,1), new Point(9,2), new Point(9,3), new Point(9,4), new Point(9,5), new Point(9,6), new Point(9,7), new Point(9,8), new Point(9,9)
 ];
+
+boardState[0].checkNeighbors();
+boardState[1].checkNeighbors();
+boardState[2].checkNeighbors();
 
     
     // modeling 1,1 point for 
@@ -123,19 +152,37 @@ init();
 let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
 
 function checkLegal(evt) {
-  let hover = [ parseInt(evt.target.parentNode.id[0]), parseInt(evt.target.parentNode.id[2]) ];
+  let hover = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(hover);
-  //first step in logic: is stone occupied
-  point.overlay = point.stone !== 0 ? 0 : 'l';
+  
+  // working old way assigns legal
+  // point.overlay = point.stone !== 0 ? 0 : 'l'; 
+  
+  // first step in logic: is point occupied, or in ko
+  if (point.stone) return;
+  // if point is not empty check if neighboring point is empty
+  if (!point.emptyNeighbor()) {
+    //if neighboring point is not empty check if friendly group is alive
+    
+    //if neighboring point is not empty check if enemy group is captured
+    
+  } else {
+    point.overlay = 'l';
+  }
+  // if neighboring point is 
+
+
+
   render(point);
 }
 
 function placeStone(evt) {
   console.log('click!');
 
-  let placement = [ parseInt(evt.target.parentNode.id[0]), parseInt(evt.target.parentNode.id[2]) ];
+  let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   // checks for placement and pushes to cell
   let point = findPointFromIdx(placement);
+  // console.log(placement);
   //checks that this placement was marked as legal
   point.stone = point.overlay === 'l' ? gameState.turn : point.stone;
   gameState.turn*= -1;
