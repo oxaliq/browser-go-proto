@@ -1,23 +1,24 @@
 /*----- constants -----*/
 // game state object {gameMeta object, playerMeta object, turn, pass, gameRecord, bCaptures, wCaptures}
-const STONES_CLASS = {
+const STONES_DATA = {
   '-1': 'white',
-  '0': 'transparent',
+  '0': 'none',
   '1': 'black',
   'k': 'ko'
 }
 
-const DOTS_CLASS = {
+const DOTS_DATA = {
   '-1': 'white',
-  '0': 'transparent',
+  '0': 'none',
   '1': 'black',
   'd': 'dame',
+  'l': 'legal',
   's': 'seki'
 }
 
 const gameState = {
   winner: null,
-  turn: null, // turn logic depends on handicap stones
+  turn: 1, // turn logic depends on handicap stones
   pass: null,
   komi: null, // komi depends on handicap stones
   handicap: null,
@@ -58,37 +59,38 @@ const handiPlace = [ 0,
   
   // define initial game state
   
-  class Point {
-    constructor(x, y) {
-      this.pos = [ x, y ]
-      this.stone = 0; // this is where move placement will go 0, 1, -1 'k'
-      this.overlay = 0; // this is where 'chk', 'l'
-      this.neighbors = {
-        top: {},
-        btm: {},
-        lft: {},
-        rgt: {}
-      },
-      // neighbor exists it's point is stored as { rPos, cPos}
-      this.neighbors.top = x > 1 ? [ x - 1, y ] : null;
-      this.neighbors.btm = x < gameState.boardSize ? [ x + 1, y ] : null;
-      this.neighbors.rgt = y > 1 ? [ x, y - 1 ] : null;
-      this.neighbors.lft = y < gameState.boardSize ? [ x, y + 1 ] : null;
-      // checkLegal: function() {
-      //   this.cellValue = (for neighbor in this.neighbors) {
-      //     boardState.find( val => {
-      //       if ( val.pos === neighbor.pos && val.stone = 0) { /*cell empty*/ }
-      //     });
-      //   }
-      //   }
-      }
-    };
+class Point {
+  constructor(x, y) {
+    this.pos = [ x, y ]
+    this.stone = 0; // this is where move placement will go 0, 1, -1 'k'
+    this.overlay = 0; // this is where 'chk', 'l'
+    this.neighbors = {
+      top: {},
+      btm: {},
+      lft: {},
+      rgt: {}
+    },
+    // neighbor exists it's point is stored as { rPos, cPos}
+    this.neighbors.top = x > 1 ? [ x - 1, y ] : null;
+    this.neighbors.btm = x < gameState.boardSize ? [ x + 1, y ] : null;
+    this.neighbors.rgt = y > 1 ? [ x, y - 1 ] : null;
+    this.neighbors.lft = y < gameState.boardSize ? [ x, y + 1 ] : null;
+    // checkLegal: function() {
+    //   this.cellValue = (for neighbor in this.neighbors) {
+    //     boardState.find( val => {
+    //       if ( val.pos === neighbor.pos && val.stone = 0) { /*cell empty*/ }
+    //     });
+    //   }
+    //   }
+    }
+  };
     
     // boardState [point objects-contain overlay] lastState (created from boardState)
-    let boardState = [ new Point(1,1), new Point(1,2), new Point(1,3),
-      new Point(2,1), new Point(2,2), new Point(2,3),
-      new Point(3,1), new Point(3,2), new Point(3,3),
-     ];
+let boardState = [ new Point(1,1), new Point(1,2), new Point(1,3),
+  new Point(2,1), new Point(2,2), new Point(2,3),
+  new Point(3,1), new Point(3,2), new Point(3,3),
+];
+
     
     // modeling 1,1 point for 
   // define boardState and overlay as 2d 9x9 arrays
@@ -116,26 +118,28 @@ const handiPlace = [ 0,
   // click on kifu to display game menu
   
   /*----- functions -----*/
-// init();
+init();
+
+let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
 
 function checkLegal(evt) {
   let hover = [ parseInt(evt.target.parentNode.id[0]), parseInt(evt.target.parentNode.id[2]) ];
-  console.log(hover);
-  
+  let point = findPointFromIdx(hover);
+  //first step in logic: is stone occupied
+  point.overlay = point.stone !== 0 ? 0 : 'l';
+  render(point);
 }
 
 function placeStone(evt) {
-
   console.log('click!');
+
   let placement = [ parseInt(evt.target.parentNode.id[0]), parseInt(evt.target.parentNode.id[2]) ];
+  // checks for placement and pushes to cell
+  let point = findPointFromIdx(placement);
   //checks that this placement was marked as legal
-    // checks for placement and pushes to cell
-  boardState.find( point => {
-    // gets board point and ensures legal
-    point.stone = point.pos[0] === placement[0] && point.pos[1] === placement[1] 
-      && point.overlay === 'l'
-      ? turn : point.stone;
-  });
+  point.stone = point.overlay === 'l' ? gameState.turn : point.stone;
+  gameState.turn*= -1;
+  render();
 }
 
 function init() {
@@ -154,8 +158,34 @@ function init() {
   // gameState.boardState // create board from user input
 
   //need init player meta
+
+  render();
 };
     
+function render(hoverPoint) {
+  // console.log('render');
+  renderBoard();
+  renderPreview(hoverPoint);
+}
+
+function renderBoard() {
+  boardState.forEach(val => {
+    let stone = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1];
+    // console.log(stone);
+    stone.setAttribute("data-stone", STONES_DATA[val.stone]);
+    // console.log(val.stone);
+    // console.log(stone);
+  })
+}
+
+function renderPreview(hoverPoint) {
+  boardState.forEach(val => {
+    let dot = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1].childNodes[0];
+    console.log();
+    dot.setAttribute("data-dot", val.overlay === 'l' && val.pos[0] === hoverPoint.pos[0] && val.pos[1] === hoverPoint.pos[1] ? DOTS_DATA[gameState.turn] : DOTS_DATA[0]);
+
+  })
+}
 
   // functions
   // initialize game
