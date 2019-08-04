@@ -82,7 +82,7 @@ class Point {
     let neighborsArr = [];
     for ( let neighbor in this.neighbors ) {
       let nbr = this.neighbors[neighbor];
-      console.log(nbr);
+      // console.log(nbr);
       // neighbor exists it's point is stored as { rPos, cPos}
       if ( nbr !== null ) {
       neighborsArr.push(boardState.find( val =>  val.pos[0] === nbr[0] && val.pos[1] === nbr[1] ))
@@ -97,12 +97,12 @@ class Point {
     // return true if neighboring point is empty;
   }
   checkCapture = () => {
-    console.log(this)
-    return !this.findStone(gameState.turn * -1).some(val => val.emptyNeighbor());
+    // console.log(this)
+    return this.findStone(gameState.turn * -1).filter(val => !val.emptyNeighbor());
   }
-  // returns first opposing neighbor that does not have an opposing neighbor
+  // returns all opposing neighbors that do not have an opposing neighbor
   checkGroup = () => {
-    return this.findStone(gameState.turn).some(val => val.emptyNeighbor());
+    return this.findStone(gameState.turn).filter(val => val.emptyNeighbor());
     // returns first friendly neighbor that has an empty neighbor
   } 
   findStone = (stone) => {
@@ -112,19 +112,17 @@ class Point {
      //returns an array of neighbors for the value of stone
   }
 }
-
+// could use this Array to iterate through and create 
 // let boardCreator = new Array(gameState.boardSize).fill(gameState.boardSize);
 // boardState [point objects-contain overlay] lastState (created from boardState)
 
-// boardState accepts values of 0, 1, -1
-// overlay accepts values of 0, 1, -1, 'k', 'd', 'chk', 'hold', 'l', 'x'
 // 'k' represents komi, in-game integers represent move previews, 
 // 'chk', 'hold', 'x' and 'l' represent points checked during checkLegalMove run
 // game-end integer represent points of territory, 'd' represents dame,
 
 
 /*----- cached element references -----*/
-// store #menu for displaying game info
+// store modal #menu for displaying game info
 // store 
 
 
@@ -159,19 +157,19 @@ function checkLegal(point) {
   // first step in logic: is point occupied, or in ko
   point.chk = true; //check
   if (point.stone) return false;
-  console.log('getting here')
+  // console.log('getting here')
   // if point is not empty check if neighboring point is empty
   if (!point.emptyNeighbor()) {
-    console.log('getting here')
+    // console.log('getting here')
     //if neighboring point is not empty check if enemy group is captured
-    if ( point.findStone(gameState.turn * -1).length && point.checkCapture()) return true;
-    console.log('getting here')
+    if ( point.checkCapture().length ) return true;
+    // console.log('getting here')
     //if neighboring point is not empty check if friendly group is alive
-    if ( point.findStone(gameState.turn).length && point.checkGroup()) return true;
-    console.log('getting here')
+    if ( point.checkGroup().length ) return true;
+    // console.log('getting here')
     return false;
   }
-  console.log('getting here')
+  // console.log('getting here')
   render(point);
   return true;
 }
@@ -183,6 +181,18 @@ function clearOverlay() { //legal and check
   }
 }
 
+function resolveCaptures(point) {
+  if( point.checkCapture().length ) {
+    let caps = point.checkCapture()
+    for (opp in caps) {
+      gameState.playerState[opp.stone > 0 ? 'bCaptures' : 'wCaptures']++;
+      caps[opp].stone = 0;
+      console.log(opp.stone);
+      console.log(caps[opp]);
+    }
+  }
+}
+
 function placeStone(evt) {
   // checks for placement and pushes to cell
   let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
@@ -190,6 +200,7 @@ function placeStone(evt) {
   //checks that this placement was marked as legal
   if ( !checkLegal(point) ) return;
   point.stone = gameState.turn;
+  resolveCaptures(point);
   gameState.turn*= -1;
   render();
 }

@@ -13,10 +13,36 @@
     <title>Browser Go</title>
 </head>
 <body>
-  <div id="menu" class="full-screen">
-    <!-- for displaying new game screen and status during game -->
+  <div class="modal">
+    <div id="menu">
+      <form>
+        <div id="game-meta">
+          <span>Date:</span><input type="text" name="date">
+          <span>Komi:</span><input type="range" name="komi">
+          <span>Handicap:</span><input type="range" name="handicap">
+        </div>
+        <div id="player-meta"> 
+          <div data-player-meta="black">
+            <h4>Black</h4>
+            <span>Name:</span><input type="text" name="black-name">
+            <span>Rank:</span><input type="text" name="black-rank">
+            <input type="checkbox" name="black-rank-certain">
+          </div>
+          <div data-player-meta="white">
+            <h4>White</h4>
+            <span>Name:</span><input type="text" name="white-name">
+            <span>Rank:</span><input type="text" name="white-rank">
+            <input type="checkbox" name="white-rank-certain">
+          </div>
+          <div id="game-record-space">
+            <p id="instructions">Put instructions for use here.</p>
+            <p id="game-record"></p>
+          </div>
+        </div>
+          
+      </form>
+    </div>
   </div>
-  <!-- may need add'l .full-screen or other div for board overlay -->
   <content>
     <div id="white-pos" class="player-pos">
       <div id="white-bowl" class="bowl">White Bowl</div>

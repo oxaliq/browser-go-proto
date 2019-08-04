@@ -8,16 +8,22 @@ body {
   width: vw;
 }
 
-.full-screen {
-  /* positioning will be absolue */
-  /* will take up whole screen */
-  /* background will be ~0.5 opacity */
-  /* grid-areas
-    "game-info *4" <-date, komi, handicap
-    "b-player-info*2 w-player-info*2" <- name, rank, rank-certainty
-    "record record record options" <- displays numbered record (stretch!), new game, get game record(stretch!)
-    pre-game record will display instructions
-    */
+.modal {
+  display: flex;
+  position: fixed;
+  z-index: 2;
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.3);
+  align-items: center;
+  justify-content: center;
+}
+
+#menu {
+  background-color: #fff;
+  padding: 1vmin;
+
 }
 
 content {
