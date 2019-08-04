@@ -101,9 +101,13 @@ class Point {
     return this.findStone(gameState.turn * -1).filter(val => !val.emptyNeighbor());
   }
   // returns all opposing neighbors that do not have an opposing neighbor
-  checkGroup = () => {
-    return this.findStone(gameState.turn).filter(val => val.emptyNeighbor());
-    // returns first friendly neighbor that has an empty neighbor
+  checkGroup = () => { // return statement works for first layer bubbling
+    // return this.findStone(gameState.turn).filter(val => val.emptyNeighbor());
+    if (!this.findStone(gameState.turn).filter(val => val.emptyNeighbor()).length) {
+
+    }
+
+    // returns all friendly neighbors that have an empty neighbor
   } 
   findStone = (stone) => {
     return this.checkNeighbors().filter(val => {
@@ -122,6 +126,8 @@ class Point {
 
 
 /*----- cached element references -----*/
+const whiteCaps = document.getElementById("white-caps");
+const blackCaps = document.getElementById("black-caps");
 // store modal #menu for displaying game info
 // store 
 
@@ -251,6 +257,7 @@ function init() {
     
 function render(hoverPoint) {
   renderBoard();
+  renderCaps();
   renderPreview(hoverPoint);
 }
 
@@ -259,6 +266,11 @@ function renderBoard() {
     let stone = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1];
     stone.setAttribute("data-stone", STONES_DATA[val.stone]);
   })
+}
+
+function renderCaps() {
+  blackCaps.textContent = gameState.playerState.bCaptures;
+  whiteCaps.textContent = gameState.playerState.wCaptures;
 }
 
 function renderPreview(hoverPoint) {

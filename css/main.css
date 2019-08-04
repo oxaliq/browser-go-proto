@@ -86,7 +86,7 @@ content {
   box-shadow: -1vmin 2vmin 3vmin rgba(83, 53, 35, 0.61);
 }
 
-.caps {
+.caps-space {
   color: #FFF;
   order: 1;
   margin: 1vh;
@@ -95,6 +95,9 @@ content {
   border-radius: 50%;
   background-color: rgb(116, 48, 17);
   box-shadow: -0.5vmin 1vmin 3vmin rgba(83, 53, 35, 0.61);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #board-space {
