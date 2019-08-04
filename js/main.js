@@ -102,10 +102,10 @@ class Point {
   }
   // returns all opposing neighbors that do not have an opposing neighbor
   checkGroup = () => { // return statement works for first layer bubbling
-    // return this.findStone(gameState.turn).filter(val => val.emptyNeighbor());
-    if (!this.findStone(gameState.turn).filter(val => val.emptyNeighbor()).length) {
+    return this.findStone(gameState.turn).filter(val => val.emptyNeighbor());
+    // if (!this.findStone(gameState.turn).filter(val => val.emptyNeighbor()).length) {
 
-    }
+    // }
 
     // returns all friendly neighbors that have an empty neighbor
   } 
