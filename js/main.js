@@ -100,12 +100,11 @@ class Point {
     console.log(this)
     return !this.findStone(gameState.turn * -1).some(val => val.emptyNeighbor());
   }
-  // returns 
+  // returns first opposing neighbor that does not have an opposing neighbor
   checkGroup = () => {
     return this.findStone(gameState.turn).some(val => val.emptyNeighbor());
-    // returns first neighbor of turn color that has an empty neighbor
+    // returns first friendly neighbor that has an empty neighbor
   } 
-
   findStone = (stone) => {
     return this.checkNeighbors().filter(val => {
       if ( val.stone === (stone) ) return val;
