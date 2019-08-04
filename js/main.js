@@ -106,12 +106,11 @@ class Point {
     if (frnStones.filter(val => val.emptyNeighbor()).length) return frnStones.filter(val => val.emptyNeighbor()) 
     for (let frnStone in frnStones) {
       frnStone = frnStones[frnStone];
-      frnStone.chk = true;
       if (frnStone.chk === true) return false;
+      frnStone.chk = true;
       return frnStone.checkGroup();
     }
-
-    // returns all friendly neighbors that have an empty neighbor
+    // returns all friendly neighbors that have an empty neighbor, recursively
   } 
   findStone = (stone) => {
     return this.checkNeighbors().filter(val => {
