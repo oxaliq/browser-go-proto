@@ -97,15 +97,19 @@ class Point {
     // return true if neighboring point is empty;
   }
   checkCapture = () => {
-    // console.log(this)
-    return this.findStone(gameState.turn * -1).filter(val => !val.emptyNeighbor());
+    let oppStones = this.findStone(gameState.turn * -1)
+    return oppStones.filter(val => !val.emptyNeighbor());
   }
   // returns all opposing neighbors that do not have an opposing neighbor
-  checkGroup = () => { // return statement works for first layer bubbling
-    return this.findStone(gameState.turn).filter(val => val.emptyNeighbor());
-    // if (!this.findStone(gameState.turn).filter(val => val.emptyNeighbor()).length) {
-
-    // }
+  checkGroup = () => { // return statement works for first layer
+    let frnStones = this.findStone(gameState.turn)
+    if (frnStones.filter(val => val.emptyNeighbor()).length) return frnStones.filter(val => val.emptyNeighbor()) 
+    for (let frnStone in frnStones) {
+      frnStone = frnStones[frnStone];
+      frnStone.chk = true;
+      if (frnStone.chk === true) return false;
+      return frnStone.checkGroup();
+    }
 
     // returns all friendly neighbors that have an empty neighbor
   } 
@@ -149,6 +153,7 @@ init();
 let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
 
 function hoverPreview(evt) {
+  evt.stopPropagation();
   // renders preview stone if move is legal
   let hover = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(hover);
@@ -195,7 +200,6 @@ function resolveCaptures(point) {
       opp = caps[opp];
       gameState.playerState[opp.stone > 0 ? 'bCaptures' : 'wCaptures']++;
       opp.stone = checkKo(opp, point) ? 'k' : 0;
-      console.log(checkKo(opp,point))
     }
   }
 }
@@ -205,6 +209,7 @@ function checkKo(cap, point) {
 }
 
 function placeStone(evt) {
+  evt.stopPropagation();
   // checks for placement and pushes to cell
   let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(placement);
