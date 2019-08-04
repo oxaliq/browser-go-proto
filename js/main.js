@@ -64,7 +64,8 @@ class Point {
   constructor(x, y) {
     this.pos = [ x, y ]
     this.stone = 0; // this is where move placement will go 0, 1, -1 'k'
-    this.overlay = 0; // this is where 'chk', 'l'
+    this.legal;
+    this.chk = false; // this is where 'chk', 'l'
     this.neighbors = {
       top: {},
       btm: {},
@@ -81,6 +82,7 @@ class Point {
     let neighborsArr = [];
     for ( let neighbor in this.neighbors ) {
       let nbr = this.neighbors[neighbor];
+      console.log(nbr);
       // neighbor exists it's point is stored as { rPos, cPos}
       if ( nbr !== null ) {
       neighborsArr.push(boardState.find( val =>  val.pos[0] === nbr[0] && val.pos[1] === nbr[1] ))
@@ -91,26 +93,22 @@ class Point {
   }
   emptyNeighbor = () => {
     let neighborsArr = this.checkNeighbors();
-    console.log(neighborsArr);
-    return !!neighborsArr.find(val => val.stone === 0 && val.overlay !== 'chk' );
+    return !!neighborsArr.find(val => val.stone === 0 && !val.chk ); //checked
     // return true if neighboring point is empty;
   }
   checkCapture = () => {
-    console.log(this.findGroup(gameState.turn * -1))
-    console.log(!this.findGroup(gameState.turn * -1).some(val => val.emptyNeighbor()))
-    return !this.findGroup(gameState.turn * -1).some(val => val.emptyNeighbor());
+    console.log(this)
+    return !this.findStone(gameState.turn * -1).some(val => val.emptyNeighbor());
   }
-
+  // returns 
   checkGroup = () => {
-    console.log(this.findGroup(gameState.turn))
-    console.log(this.findGroup(gameState.turn).some(val => val.emptyNeighbor()))
-    return this.findGroup(gameState.turn).some(val => val.emptyNeighbor());
+    return this.findStone(gameState.turn).some(val => val.emptyNeighbor());
     // returns first neighbor of turn color that has an empty neighbor
   } 
 
-  findGroup = (stone) => {
+  findStone = (stone) => {
     return this.checkNeighbors().filter(val => {
-      if ( val.stone === stone ) return val;
+      if ( val.stone === (stone) ) return val;
     });
      //returns an array of neighbors for the value of stone
   }
@@ -152,25 +150,38 @@ function hoverPreview(evt) {
   let hover = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(hover);
   if (checkLegal(point)) {
-    point.overlay = 'l';
+    point.legal = true; // legal
     render(point);
   }
 }
 
 function checkLegal(point) {
+  clearOverlay();
   // first step in logic: is point occupied, or in ko
-  point.overlay = 'chk';
+  point.chk = true; //check
   if (point.stone) return false;
+  console.log('getting here')
   // if point is not empty check if neighboring point is empty
   if (!point.emptyNeighbor()) {
+    console.log('getting here')
     //if neighboring point is not empty check if enemy group is captured
-    if (point.checkCapture()) return true;
+    if ( point.findStone(gameState.turn * -1).length && point.checkCapture()) return true;
+    console.log('getting here')
     //if neighboring point is not empty check if friendly group is alive
-    if (!point.checkGroup()) return false;
-    return true;
+    if ( point.findStone(gameState.turn).length && point.checkGroup()) return true;
+    console.log('getting here')
+    return false;
   }
+  console.log('getting here')
   render(point);
   return true;
+}
+
+function clearOverlay() { //legal and check
+  for (let point in boardState) {
+    boardState[point].chk = false;
+    boardState[point].legal = false;
+  }
 }
 
 function placeStone(evt) {
@@ -181,9 +192,6 @@ function placeStone(evt) {
   if ( !checkLegal(point) ) return;
   point.stone = gameState.turn;
   gameState.turn*= -1;
-  for (let point in boardState) {
-    point.overlay = '';
-  }
   render();
 }
 function init() {
@@ -231,7 +239,7 @@ function renderBoard() {
 function renderPreview(hoverPoint) {
   boardState.forEach(val => {
     let dot = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1].childNodes[0];
-    dot.setAttribute("data-dot", val.overlay === 'l' && val.pos[0] === hoverPoint.pos[0] && val.pos[1] === hoverPoint.pos[1] ? DOTS_DATA[gameState.turn] : DOTS_DATA[0]);
+    dot.setAttribute("data-dot", val.legal === true && val.pos[0] === hoverPoint.pos[0] && val.pos[1] === hoverPoint.pos[1] ? DOTS_DATA[gameState.turn] : DOTS_DATA[0]);
 
   })
 }
