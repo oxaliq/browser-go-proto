@@ -93,7 +93,7 @@ class Point {
   }
   emptyNeighbor = () => {
     let neighborsArr = this.checkNeighbors();
-    return !!neighborsArr.find(val => val.stone === 0 && !val.chk ); //checked
+    return neighborsArr.find(val => val.stone === 0 && !val.chk ); //checked
     // return true if neighboring point is empty;
   }
   checkCapture = () => {
@@ -176,8 +176,9 @@ function checkLegal(point) {
 
 function clearOverlay() { //legal and check
   for (let point in boardState) {
-    boardState[point].chk = false;
-    boardState[point].legal = false;
+    point = boardState[point];
+    point.chk = false;
+    point.legal = false;
   }
 }
 
@@ -185,12 +186,16 @@ function resolveCaptures(point) {
   if( point.checkCapture().length ) {
     let caps = point.checkCapture()
     for (opp in caps) {
+      opp = caps[opp];
       gameState.playerState[opp.stone > 0 ? 'bCaptures' : 'wCaptures']++;
-      caps[opp].stone = 0;
-      console.log(opp.stone);
-      console.log(caps[opp]);
+      opp.stone = checkKo(opp, point) ? 'k' : 0;
+      console.log(checkKo(opp,point))
     }
   }
+}
+
+function checkKo(cap, point) {
+  return cap.findStone(gameState.turn).length === 4 && !point.emptyNeighbor();//determines ponnuki
 }
 
 function placeStone(evt) {
@@ -200,10 +205,20 @@ function placeStone(evt) {
   //checks that this placement was marked as legal
   if ( !checkLegal(point) ) return;
   point.stone = gameState.turn;
+  clearKoClearPass();
   resolveCaptures(point);
   gameState.turn*= -1;
   render();
 }
+
+function clearKoClearPass() {
+  for (let point in boardState) {
+    point = boardState[point];
+    point.stone = point.stone === 'k' ? 0 : point.stone;
+    gameState.pass = 0;
+  }
+}
+
 function init() {
   gameState.winner = null;
   gameState.pass = null;
