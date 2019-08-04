@@ -91,19 +91,24 @@ class Point {
   }
   emptyNeighbor = () => {
     let neighborsArr = this.checkNeighbors();
-    return !!neighborsArr.find(val => val.stone === 0);
+    console.log(neighborsArr);
+    return !!neighborsArr.find(val => val.stone === 0 && val.overlay !== 'chk' );
     // return true if neighboring point is empty;
   }
   checkCapture = () => {
-    return !this.liveGroup(gameState.turn * -1).some(val => val.emptyNeighbor());
+    console.log(this.findGroup(gameState.turn * -1))
+    console.log(!this.findGroup(gameState.turn * -1).some(val => val.emptyNeighbor()))
+    return !this.findGroup(gameState.turn * -1).some(val => val.emptyNeighbor());
   }
 
   checkGroup = () => {
-    return this.liveGroup(gameState.turn).some(val => val.emptyNeighbor());
+    console.log(this.findGroup(gameState.turn))
+    console.log(this.findGroup(gameState.turn).some(val => val.emptyNeighbor()))
+    return this.findGroup(gameState.turn).some(val => val.emptyNeighbor());
     // returns first neighbor of turn color that has an empty neighbor
   } 
 
-  liveGroup = (stone) => {
+  findGroup = (stone) => {
     return this.checkNeighbors().filter(val => {
       if ( val.stone === stone ) return val;
     });
@@ -111,7 +116,7 @@ class Point {
   }
 }
 
-let boardCreator = new Array(gameState.boardSize).fill(gameState.boardSize);
+// let boardCreator = new Array(gameState.boardSize).fill(gameState.boardSize);
 // boardState [point objects-contain overlay] lastState (created from boardState)
 
 // boardState accepts values of 0, 1, -1
@@ -154,13 +159,12 @@ function hoverPreview(evt) {
 
 function checkLegal(point) {
   // first step in logic: is point occupied, or in ko
+  point.overlay = 'chk';
   if (point.stone) return false;
-  console.log('reading empty');
-  console.log(point.emptyNeighbor())
   // if point is not empty check if neighboring point is empty
   if (!point.emptyNeighbor()) {
     //if neighboring point is not empty check if enemy group is captured
-    if (!point.checkCapture()) return false;
+    if (point.checkCapture()) return true;
     //if neighboring point is not empty check if friendly group is alive
     if (!point.checkGroup()) return false;
     return true;
@@ -213,7 +217,6 @@ function init() {
 };
     
 function render(hoverPoint) {
-  // console.log('render');
   renderBoard();
   renderPreview(hoverPoint);
 }
@@ -221,17 +224,13 @@ function render(hoverPoint) {
 function renderBoard() {
   boardState.forEach(val => {
     let stone = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1];
-    // console.log(stone);
     stone.setAttribute("data-stone", STONES_DATA[val.stone]);
-    // console.log(val.stone);
-    // console.log(stone);
   })
 }
 
 function renderPreview(hoverPoint) {
   boardState.forEach(val => {
     let dot = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1].childNodes[0];
-    console.log();
     dot.setAttribute("data-dot", val.overlay === 'l' && val.pos[0] === hoverPoint.pos[0] && val.pos[1] === hoverPoint.pos[1] ? DOTS_DATA[gameState.turn] : DOTS_DATA[0]);
 
   })
