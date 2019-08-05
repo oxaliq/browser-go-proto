@@ -84,6 +84,24 @@ content {
   border-radius: 50%;
   background-color: rgb(116, 48, 17);
   box-shadow: -1vmin 2vmin 3vmin rgba(83, 53, 35, 0.61);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bowl p {
+  display: none;
+}
+
+.bowl[data-turn]:hover p {
+  display: block;
+  color: #FFF;
+  background-color: rgba(0,0,0,0.3);
+  padding: .5em;
+}
+
+.bowl[data-turn] {
+  box-shadow: 0 0 3vh 3vh rgb(31, 255, 2);
 }
 
 .caps-space {

@@ -78,12 +78,10 @@ class Point {
     this.neighbors.rgt = y > 1 ? [ x, y - 1 ] : null;
     this.neighbors.lft = y < gameState.boardSize ? [ x, y + 1 ] : null;
   } 
-  // first 
   checkNeighbors = () => {
     let neighborsArr = [];
     for ( let neighbor in this.neighbors ) {
       let nbr = this.neighbors[neighbor];
-      // console.log(nbr);
       // neighbor exists it's point is stored as { rPos, cPos}
       if ( nbr !== null ) {
       neighborsArr.push(boardState.find( val =>  val.pos[0] === nbr[0] && val.pos[1] === nbr[1] ))
@@ -105,7 +103,7 @@ class Point {
         opp2.chk = true;
         tempCaps.push(opp2);
         if (opp2.getLiberties().length) return false;
-        checkCaptureNeighbors(opp2)
+        checkCaptureNeighbors(opp2);
       })
     }
     let opps = this.checkNeighbors().filter(nbr => nbr.stone === gameState.turn * -1);
@@ -182,6 +180,7 @@ document.getElementById('board').addEventListener('click', placeStone);
 // ::hover-over on either bowl for pass, one-level undo options (CSS implementation)
 // click on menu items 
 // click on kifu to display game menu
+document.querySelector('.bowl[data-turn="true"]')
 
 /*----- functions -----*/
 init();
@@ -195,7 +194,7 @@ function hoverPreview(evt) {
   let point = findPointFromIdx(hover);
   if (checkLegal(point)) {
     point.legal = true; // legal
-    render(point);
+    renderPreview(point);
   }
 }
 
@@ -203,6 +202,7 @@ function checkLegal(point) {
   clearOverlay();
   // first step in logic: is point occupied, or in ko
   point.chk = true; //check
+  console.log(!!point.stone);
   if (point.stone) return false;
   console.log('getting here')
   // if point is not empty check if liberties
@@ -217,7 +217,6 @@ function checkLegal(point) {
     return false;
   }
   // console.log('getting here')
-  render(point);
   return true;
 }
 
@@ -232,7 +231,7 @@ function clearOverlay() { //legal and check
 function resolveCaptures(point) {
   console.log('getting here');
   point.checkCapture();
-  if( point.capturing.length ) {
+  if(point.capturing.filter(cap => cap).length ) {
     point.capturing.forEach(cap => {
       gameState.playerState[cap.stone > 0 ? 'bCaptures' : 'wCaptures']++;
       cap.stone = 0;
@@ -255,7 +254,8 @@ function placeStone(evt) {
   point.stone = gameState.turn;
   clearKoClearPass();
   resolveCaptures(point);
-  clearCaptures(point);
+  clearCaptures();
+  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: ${point.pos}`)
   gameState.turn*= -1;
   render();
 }
@@ -339,15 +339,23 @@ function init() {
   boardState[41].stone = -1;
   boardState[42].stone = 1;
   boardState[46].stone = 1;
-  
+  clearCaptures();
   // end testing board state
   render();
 };
     
 function render(hoverPoint) {
+  console.log(gameState.gameRecord)
+  gameState.gameRecord.length? renderTurn() : renderFirstTurn();
   renderBoard();
   renderCaps();
-  renderPreview(hoverPoint);
+}
+
+function renderFirstTurn() {
+  document.getElementById(`${STONES_DATA[gameState.turn]}-bowl`).toggleAttribute('data-turn');
+}
+function renderTurn() {
+  document.querySelectorAll(`.bowl`).forEach(bowl => bowl. toggleAttribute('data-turn'));
 }
 
 function renderBoard() {
