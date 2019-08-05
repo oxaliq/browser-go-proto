@@ -66,6 +66,7 @@ class Point {
     this.stone = 0; // this is where move placement will go 0, 1, -1 'k'
     this.legal;
     this.chk = false; // this is where 'chk', 'l'
+    this.capturing = [];
     this.neighbors = {
       top: {},
       btm: {},
@@ -91,25 +92,61 @@ class Point {
     // returns array of existing neighbors to calling function
     return neighborsArr;
   }
-  emptyNeighbor = () => {
-    let neighborsArr = this.checkNeighbors();
-    return neighborsArr.find(val => val.stone === 0 && !val.chk ); //checked
+  getLiberties = () => { 
+    let neighborsArr = this.checkNeighbors().filter(val => val.stone === 0);
+    return neighborsArr; //checked
     // return true if neighboring point is empty;
   }
   checkCapture = () => {
-    let oppStones = this.findStone(gameState.turn * -1)
-    return oppStones.filter(val => !val.emptyNeighbor());
-  }
-  // returns all opposing neighbors that do not have an opposing neighbor
-  checkGroup = () => { // return statement works for first layer
-    let frnStones = this.findStone(gameState.turn)
-    if (frnStones.filter(val => val.emptyNeighbor()).length) return frnStones.filter(val => val.emptyNeighbor()) 
-    for (let frnStone in frnStones) {
-      frnStone = frnStones[frnStone];
-      if (frnStone.chk === true) return false;
-      frnStone.chk = true;
-      return frnStone.checkGroup();
+    function checkCaptureNeighbors(opp) {
+      let opps2 = opp.checkNeighbors().filter(nbr2 => nbr2.stone === gameState.turn * -1);
+      opps2.forEach(opp2 => {
+        if (opp2.chk === true) return false;
+        opp2.chk = true;
+        tempCaps.push(opp2);
+        if (opp2.getLiberties().length) return false;
+        checkCaptureNeighbors(opp2)
+      })
     }
+    let opps = this.checkNeighbors().filter(nbr => nbr.stone === gameState.turn * -1);
+    let tempCaps;
+    opps.forEach(opp => {
+      tempCaps = [];
+      if (opp.chk === true) return;
+      opp.check = true;
+      tempCaps.push(opp);
+      if (opp.getLiberties().length > 1) return;
+      checkCaptureNeighbors(opp);
+      console.log(this.capturing);
+    })
+    this.capturing = this.capturing ? this.capturing.concat(tempCaps)
+      : tempCaps;
+    // filters duplicate points
+    this.capturing = Array.from(new Set(this.capturing));
+    return this.capturing;
+  }
+
+  checkGroup = () => { // liberty is true when called by move false when called by check Capture
+    function checkGroupNeighbors(frn) {
+      console.log(frn);
+      let frns2 = frn.checkNeighbors().filter(nbr2 => nbr2.stone === gameState.turn && nbr2.chk === false);
+      console.log(frns2);
+      if(!frns2.length) return false;
+      frns2.filter(frn2 => {
+        if (frn2.chk === true) return false;
+        frn2.chk = true;
+        return (frn2.getLiberties().length) ? frn2 : checkGroupNeighbors(frn2); 
+      });
+    }
+    console.log('checking group')
+    let frns = this.checkNeighbors().filter(nbr => nbr.stone === gameState.turn);
+    return frns.filter(frn => {
+      if(frn.chk === true) return false;
+      frn.check = true;
+      console.log(frn);
+      if (frn.getLiberties().length > 1) return frn;
+      checkGroupNeighbors(frn);
+    })
     // returns all friendly neighbors that have an empty neighbor, recursively
   } 
   findStone = (stone) => {
@@ -167,16 +204,16 @@ function checkLegal(point) {
   // first step in logic: is point occupied, or in ko
   point.chk = true; //check
   if (point.stone) return false;
-  // console.log('getting here')
-  // if point is not empty check if neighboring point is empty
-  if (!point.emptyNeighbor()) {
-    // console.log('getting here')
-    //if neighboring point is not empty check if enemy group is captured
-    if ( point.checkCapture().length ) return true;
-    // console.log('getting here')
+  console.log('getting here')
+  // if point is not empty check if liberties
+  if (point.getLiberties().length < 2) {
+    console.log('getting here')
+    //if no liberties check if enemy group has liberties
+    if ( point.checkCapture() ) return true;
+    console.log(point.checkGroup())
     //if neighboring point is not empty check if friendly group is alive
     if ( point.checkGroup().length ) return true;
-    // console.log('getting here')
+    console.log('getting here')
     return false;
   }
   // console.log('getting here')
@@ -193,18 +230,19 @@ function clearOverlay() { //legal and check
 }
 
 function resolveCaptures(point) {
-  if( point.checkCapture().length ) {
-    let caps = point.checkCapture()
-    for (opp in caps) {
-      opp = caps[opp];
-      gameState.playerState[opp.stone > 0 ? 'bCaptures' : 'wCaptures']++;
-      opp.stone = checkKo(opp, point) ? 'k' : 0;
-    }
+  console.log('getting here');
+  point.checkCapture();
+  if( point.capturing.length ) {
+    point.capturing.forEach(cap => {
+      gameState.playerState[cap.stone > 0 ? 'bCaptures' : 'wCaptures']++;
+      cap.stone = 0;
+    })
   }
 }
 
 function checkKo(cap, point) {
-  return cap.findStone(gameState.turn).length === 4 && !point.emptyNeighbor();//determines ponnuki
+  console.log(cap);
+  return cap.findStone(gameState.turn).length === 4 && point.getLiberties().length;//determines ponnuki
 }
 
 function placeStone(evt) {
@@ -217,6 +255,7 @@ function placeStone(evt) {
   point.stone = gameState.turn;
   clearKoClearPass();
   resolveCaptures(point);
+  clearCaptures(point);
   gameState.turn*= -1;
   render();
 }
@@ -226,6 +265,13 @@ function clearKoClearPass() {
     point = boardState[point];
     point.stone = point.stone === 'k' ? 0 : point.stone;
     gameState.pass = 0;
+  }
+}
+
+function clearCaptures() {
+  for (let point in boardState) {
+    point = boardState[point];
+    point.capturing = [];
   }
 }
 
@@ -256,6 +302,45 @@ function init() {
   new Point(8,1), new Point(8,2), new Point(8,3), new Point(8,4), new Point(8,5), new Point(8,6), new Point(8,7), new Point(8,8), new Point(8,9),
   new Point(9,1), new Point(9,2), new Point(9,3), new Point(9,4), new Point(9,5), new Point(9,6), new Point(9,7), new Point(9,8), new Point(9,9)
   ];
+  // testing board state for moves at [32]
+  gameState.turn = 1;
+
+  boardState[1].stone = 1;
+  boardState[4].stone = 1;
+  boardState[5].stone = 1;
+  boardState[6].stone = 1;
+  boardState[9].stone = 1;
+  boardState[10].stone = -1;
+  boardState[11].stone = 1;
+  boardState[13].stone = -1;
+  boardState[14].stone = -1;
+  boardState[15].stone = -1;
+  boardState[16].stone = 1;
+  boardState[18].stone = 1;
+  boardState[19].stone = -1;
+  boardState[20].stone = 1;
+  boardState[21].stone = 1;
+  boardState[22].stone = 1;
+  boardState[23].stone = -1;
+  boardState[24].stone = 1;
+  boardState[25].stone = 1;
+  boardState[27].stone = 1;
+  boardState[28].stone = -1;
+  boardState[29].stone = -1;
+  boardState[30].stone = -1;
+  boardState[31].stone = -1;
+  boardState[33].stone = -1;
+  boardState[34].stone = 1;
+  boardState[36].stone = 1;
+  boardState[37].stone = -1;
+  boardState[38].stone = 1;
+  boardState[39].stone = 1;
+  boardState[40].stone = 1;
+  boardState[41].stone = -1;
+  boardState[42].stone = 1;
+  boardState[46].stone = 1;
+  
+  // end testing board state
   render();
 };
     
@@ -267,8 +352,8 @@ function render(hoverPoint) {
 
 function renderBoard() {
   boardState.forEach(val => {
-    let stone = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1];
-    stone.setAttribute("data-stone", STONES_DATA[val.stone]);
+    let stoneElem = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1];
+    stoneElem.setAttribute("data-stone", STONES_DATA[val.stone]);
   })
 }
 
