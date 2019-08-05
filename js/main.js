@@ -233,7 +233,7 @@ function resolveCaptures(point) {
   point.checkCapture();
   if(point.capturing.filter(cap => cap).length ) {
     point.capturing.forEach(cap => {
-      gameState.playerState[cap.stone > 0 ? 'bCaptures' : 'wCaptures']++;
+      gameState.playerState[point.stone > 0 ? 'bCaptures' : 'wCaptures']++;
       cap.stone = 0;
     })
   }
