@@ -67,6 +67,7 @@ class Point {
     this.legal;
     this.chk = false; // this is where 'chk', 'l'
     this.capturing = [];
+    this.captureChecked = false;
     this.neighbors = {
       top: {},
       btm: {},
@@ -102,8 +103,9 @@ class Point {
         if (opp2.chk === true) continue;
         opp2.chk = true;
         if (opp2.getLiberties().length > 0) {
+          opp.chk = false;
           tempCaps = [];
-          continue;
+          break;
         }
         tempCaps.push(opp2);
         checkCaptureNeighbors(opp2);
@@ -116,6 +118,7 @@ class Point {
       tempCaps = [];
       if (opp.getLiberties().length > 1) {
         tempCaps = [];
+        opp.chk = false;
         continue;
       }
       console.log(opp);
@@ -124,6 +127,9 @@ class Point {
       checkCaptureNeighbors(opp);
       this.capturing = this.capturing.length ? this.capturing.concat(tempCaps) : tempCaps;
     }
+    console.log(this);
+    this.captureChecked = true;
+    console.log(this);
     // filters duplicate points
     this.capturing = Array.from(new Set(this.capturing));
     return this.capturing;
@@ -165,8 +171,9 @@ class Point {
 
 
 /*----- cached element references -----*/
-const whiteCaps = document.getElementById("white-caps");
-const blackCaps = document.getElementById("black-caps");
+const whiteCapsEl = document.getElementById("white-caps");
+const blackCapsEl = document.getElementById("black-caps");
+const modalEl = document.querySelector('.modal');
 // store modal #menu for displaying game info
 // store 
 
@@ -181,12 +188,52 @@ document.getElementById('board').addEventListener('click', clickPlaceStone);
 // ::hover-over on either bowl for pass, one-level undo options (CSS implementation)
 // click on menu items 
 // click on kifu to display game menu
-document.querySelector('.bowl[data-turn="true"]')
+document.getElementById('white-bowl').addEventListener('click',clickPass);
+document.getElementById('black-bowl').addEventListener('click',clickPass);
+document.getElementById('kifu').addEventListener('click', clickMenu);
+document.getElementById('white-caps-space').addEventListener('click', clickResign);
+document.getElementById('black-caps-space').addEventListener('click', clickResign);
+modalEl.addEventListener('click', clickCloseMenu);
+
 
 /*----- functions -----*/
 init();
 
 let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
+
+function clickPass(evt) {
+  if (evt.target.parentElement.id === `${STONES_DATA[gameState.turn]}-bowl`) playerPass();
+}
+
+function playerPass() {
+  // display confirmation message
+  clearKo();
+  clearCaptures();
+  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: pass`)
+  gameState.pass++;
+  if (gameState.pass === 2) return endGame();
+  gameState.turn*= -1;
+  render();
+}
+
+function clickMenu() {
+  modalEl.style.visibility = 'visible';
+}
+
+function clickCloseMenu(evt) {
+  evt.stopPropagation();
+  modalEl.style.visibility = 'hidden';
+}
+
+function clickResign(evt) {
+  if (evt.target.parentElement.id === `${STONES_DATA[gameState.turn]}-caps-space`) playerResign();
+}
+
+function playerResign() {
+  // display confirmation message
+  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: resign`)
+  endGame();
+}
 
 function hoverPreview(evt) {
   evt.stopPropagation();
@@ -224,9 +271,13 @@ function clearOverlay() { //legal and check
 }
 
 function resolveCaptures(point) {
-  if(point.capturing.filter(cap => cap).length ) {
+  if(!point.capturing.length && !point.captureChecked) {
+    console.log('check fail');
+    point.checkCapture();
+  }
+  if(point.capturing.length) {
     point.capturing.forEach(cap => {
-      gameState.playerState[point.stone > 0 ? 'bCaptures' : 'wCaptures']++;
+      gameState.playerState[gameState.turn > 0 ? 'bCaptures' : 'wCaptures']++;
       cap.stone = 0;
     })
   }
@@ -243,26 +294,31 @@ function clickPlaceStone(evt) {
   let point = findPointFromIdx(placement);
   //checks that this placement was marked as legal
   if ( !checkLegal(point) ) return;
-  point.stone = gameState.turn;
-  clearKoClearPass();
+  clearKo();
+  clearPass();
   resolveCaptures(point);
+  point.stone = gameState.turn;
   clearCaptures();
   gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: ${point.pos}`)
   gameState.turn*= -1;
   render();
 }
 
-function clearKoClearPass() {
+function clearKo() {
   for (let point in boardState) {
     point = boardState[point];
     point.stone = point.stone === 'k' ? 0 : point.stone;
-    gameState.pass = 0;
   }
+}
+
+function clearPass() {
+  gameState.pass = 0;
 }
 
 function clearCaptures() {
   for (let point in boardState) {
     point = boardState[point];
+    point.captureChk = false;
     point.capturing = [];
   }
 }
@@ -331,6 +387,16 @@ function init() {
   boardState[41].stone = -1;
   boardState[42].stone = 1;
   boardState[46].stone = 1;
+  boardState[56].stone = 1;
+  boardState[57].stone = 1;
+  boardState[65].stone = -1;
+  boardState[66].stone = -1;
+  boardState[67].stone = 1;
+  boardState[74].stone = -1;
+  boardState[75].stone = -1;
+  boardState[76].stone = 1;
+
+
   clearCaptures();
   // end testing board state
   render();
@@ -351,22 +417,26 @@ function renderTurn() {
 
 function renderBoard() {
   boardState.forEach(val => {
-    let stoneElem = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1];
+    let stoneElem = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).childNodes[1];
     stoneElem.setAttribute("data-stone", STONES_DATA[val.stone]);
   })
 }
 
 function renderCaps() {
-  blackCaps.textContent = gameState.playerState.bCaptures;
-  whiteCaps.textContent = gameState.playerState.wCaptures;
+  blackCapsEl.textContent = gameState.playerState.bCaptures;
+  whiteCapsEl.textContent = gameState.playerState.wCaptures;
 }
 
 function renderPreview(hoverPoint) {
   boardState.forEach(val => {
-    let dot = document.getElementById(`${val.pos[0]},${val.pos[1]}`).childNodes[1].childNodes[0];
+    let dot = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).childNodes[1].childNodes[0];
     dot.setAttribute("data-dot", val.legal === true && val.pos[0] === hoverPoint.pos[0] && val.pos[1] === hoverPoint.pos[1] ? DOTS_DATA[gameState.turn] : DOTS_DATA[0]);
 
   })
+}
+
+function endGame() {
+
 }
 
   // functions
