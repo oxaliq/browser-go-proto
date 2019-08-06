@@ -96,6 +96,10 @@ div[data-player-meta] input {
   margin: 1vmin;
 }
 
+#confirm {
+  visibility: hidden;
+}
+
 div[data-player-meta] label {
   margin: .25em;
   font-size: 100%;
@@ -109,6 +113,8 @@ div[data-player-meta] label {
   padding: .5em;
   line-height: 1.5;
   overflow: scroll;
+  height: 100%;
+  width: 100%
 }
 
 #instructions, #game-record{
@@ -228,6 +234,18 @@ content {
   justify-content: center;
 }
 
+.caps-space :first-child {
+  display: none;
+}
+
+.bowl[data-turn] + .name-space .caps-space:hover :first-child {
+  display: block;
+  position: absolute;
+  background-color: rgba(0,0,0,0.7);
+  padding: .5em;
+  cursor: grab;
+}
+
 .name-space {
   order: 1;
   display: flex;
@@ -240,12 +258,29 @@ content {
   color: rgb(255,240,230)
 }
 
+#board-container {
+  width: 100%;
+  display: grid;
+  grid-template-areas: 100%;
+  grid-template-columns: 100%;
+  grid-template-areas:
+    "board";
+}
+
+#board-underlay {
+  grid-area: board;
+  background-color: rgb(255, 255, 255);
+  width: 100%;
+  height: 100%;
+}
+
 #board-space {
+  grid-area: board;
   margin: 0 auto;
   /* grid-area: board-space; */
   display: flex;
   flex-direction: column;
-  background-color: #EAB24E;
+  background-color: rgba(234, 178, 78, 1);
   /* width: 90vmin; */
   /* height: 90vmin; */
   padding: 1vmin;
@@ -253,6 +288,7 @@ content {
   box-shadow: -2vmin 4vmin 3vmin rgba(145, 92, 23, 0.5);
   flex: 1;
 }
+
 
 #board-space table {
   display: flex;

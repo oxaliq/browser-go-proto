@@ -107,13 +107,10 @@ class Point {
     for (let frn of frns) {
       this.groupMembers.push(frn);
     }
-    console.log(this);
-    console.log(this.groupMembers)
     // this.groupMembers = Array.from(new Set(this.groupMembers));
     if (!this.groupMembers.length) return;
     for (let grpMem in this.groupMembers) {
       debugger;
-      console.log(this);
       this.groupMembers = Array.from(new Set(this.groupMembers.concat(this.groupMembers[grpMem].groupMembers)));
     }
     for (let grpMem in this.groupMembers) {
@@ -126,8 +123,6 @@ class Point {
       && nbr.getLiberties().every(liberty => liberty === this));
     for (let opp of opps) {
       if (opp.groupMembers.every(stone => stone.getLiberties().filter(liberty => liberty !== this).length === 0)) {
-        console.log(opp);
-        console.log(opp.groupMembers);
         this.capturing = this.capturing.concat(opp.groupMembers);
       };
     }
@@ -163,8 +158,10 @@ const blackRankDownEl = document.getElementById("black-rank-down");
 const whiteRankEl = document.getElementById("white-rank");
 const whiteRankUpEl = document.getElementById("black-rank-up");
 const whiteRankDownEl = document.getElementById("black-rank-down");
-const blackNameEl = document.querySelector("input[name='black-name']")
-const whiteNameEl = document.querySelector("input[name='white-name']")
+const blackNameInputEl = document.querySelector("input[name='black-name']")
+const whiteNameInputEl = document.querySelector("input[name='white-name']")
+const blackNameDisplayEl = document.querySelector("h4#black-player-name");
+const whiteNameDisplayEl = document.querySelector("h4#white-player-name");
 
 // store modal #menu for displaying game info
 // store 
@@ -206,7 +203,6 @@ function changeUpdateHandicap() {
 }
 
 function clickUpdatePlayerMeta(evt) {
-  evt.stopPropagation;
   switch (evt.target.id) {
     case 'black-rank-up':
       gameState.playerMeta.b.rank++;
@@ -221,16 +217,25 @@ function clickUpdatePlayerMeta(evt) {
       gameState.playerMeta.w.rank--;
       break;
   }
-  console.log(evt);
   if (evt.target.name = 'black-rank-certain') gameState.playerMeta.b.rankCertain = !gameState.playerMeta.b.rankCertain;
   if (evt.target.name = 'white-rank-certain') gameState.playerMeta.w.rankCertain = !gameState.playerMeta.w.rankCertain;
-  if (evt.target.name = 'black-name') gameState.playerMeta.b.name = blackNameEl.value;
-  if (evt.target.name = 'white-name') gameState.playerMeta.w.name = whiteNameEl.value;
-
   blackRankEl.textContent = RANKS[gameState.playerMeta.b.rank];
   whiteRankEl.textContent = RANKS[gameState.playerMeta.w.rank];
+  
 }
 
+function clickKomiSuggestion() {
+  //
+}
+
+function clickSubmitStart() {
+
+  gameState.playerMeta.b.name = blackNameInputEl.value;
+  gameState.playerMeta.w.name = whiteNameInputEl.value;
+  blackNameDisplayEl.textContent = gameState.playerMeta.b.name;
+  whiteNameDisplayEl.textContent = gameState.playerMeta.w.name;
+}
+  
 function clickPass(evt) {
   if (evt.target.parentElement.id === `${STONES_DATA[gameState.turn]}-bowl`) playerPass();
 }
@@ -264,7 +269,10 @@ function clickResign(evt) {
 
 function playerResign() {
   // display confirmation message
-  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: resign`)
+  if (!confirm('Do you want to resign?')) return;
+
+  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: resign`);
+  gameState.winner = STONES_DATA[gameState.turn * -1];
   endGame();
 }
 
@@ -316,11 +324,6 @@ function resolveCaptures(point) {
 }
 
 function checkKo(point, cap) {
-  console.log(point);
-  console.log(point.getLiberties());
-  console.log(cap);
-  console.log(cap.checkNeighbors());
-  console.log(`${STONES_DATA[gameState.turn]}: ${point.pos[0]},${point.pos[1]}`)
   if (!point.getLiberties().length && cap.checkNeighbors().filter(stone => stone.stone === gameState.turn * -1) 
     && point.capturing.length === 1) return true;
 }
@@ -488,20 +491,22 @@ function init() {
 function render(hoverPoint) {
   if (gameState.winner || gameState.pass > 1) {
     renderTerritory();
+    renderMessage();
   }
   gameState.gameRecord.length? renderTurn() : renderFirstTurn();
   renderBoard();
   renderCaps();
 }
 
+function renderMessage() {
+  
+}
+
 function renderTerritory() {
-  console.log('rendering territory')
   boardState.forEach(val => {
     let stoneElem = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).childNodes[1].childNodes[0];
-    console.log(stoneElem)
     stoneElem.setAttribute("data-dot", DOTS_DATA[val.territory]);
   })
-  console.log('rendering finished')
 }
 
 function renderFirstTurn() {
@@ -537,18 +542,21 @@ function renderPreview(hoverPoint) {
 }
 
 function endGameSetTerritory() {
-  console.log('ending game');
   boardState.forEach(pt => { 
-    pt.territory = pt.stone ? 'd' : 'd'
-    console.log(pt);
+    pt.territory = pt.stone ? pt.stone : 'd'
   });
+  boardState.filter(pt => {
+    return pt.groupMembers.length < 6 && pt.stone
+  }).forEach(pt => pt.territory = pt.stone * -1);
 }
 
 function endGame() {
+  if (!gameState.winner)
   endGameSetTerritory()
   
   // join all remaining groups
   // check remaining groups life
+
         // search empty spaces on board for deadShapes
             //  compare spaces to rotations of deadShapes[...]
             // 'd' if empty spaces 
