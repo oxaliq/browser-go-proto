@@ -15,7 +15,7 @@ const DOTS_DATA = {
   's': 'seki'
 }
 
-const ranks = ['30k', '29k', '28k', '27k', '26k', '25k', '24k', '23k', '22k', '21k', '20k', 
+const RANKS = ['30k', '29k', '28k', '27k', '26k', '25k', '24k', '23k', '22k', '21k', '20k', 
   '19k', '18k', '17k', '16k', '15k', '14k', '13k', '12k', '11k', '10k', 
   '9k', '8k', '7k', '6k', '5k', '4k', '3k', '2k', '1k', 
   '1d', '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d']
@@ -37,12 +37,12 @@ const gameState = {
   playerMeta: { // editable during game
     b: {
       name: null,
-      rank: null, 
+      rank: 21, 
       rankCertain: false
     },
     w: {
       name: null,
-      rank: null,
+      rank: 21,
       rankCertain: false
     },
   },
@@ -157,6 +157,15 @@ const blackCapsEl = document.getElementById("black-caps");
 const modalEl = document.querySelector('.modal');
 const komiSliderEl = document.querySelector('input[name="komi-slider"]');
 const handiSliderEl = document.querySelector('input[name="handicap-slider"]');
+const blackRankEl = document.getElementById("black-rank");
+const blackRankUpEl = document.getElementById("black-rank-up");
+const blackRankDownEl = document.getElementById("black-rank-down");
+const whiteRankEl = document.getElementById("white-rank");
+const whiteRankUpEl = document.getElementById("black-rank-up");
+const whiteRankDownEl = document.getElementById("black-rank-down");
+const blackNameEl = document.querySelector("input[name='black-name']")
+const whiteNameEl = document.querySelector("input[name='white-name']")
+
 // store modal #menu for displaying game info
 // store 
 
@@ -179,6 +188,8 @@ document.getElementById('black-caps-space').addEventListener('click', clickResig
 modalEl.addEventListener('click', clickCloseMenu);
 komiSliderEl.addEventListener('change', changeUpdateKomi);
 handiSliderEl.addEventListener('change', changeUpdateHandicap);
+document.getElementById('player-meta').addEventListener('click', clickUpdatePlayerMeta);
+document.getElementById('player-meta').addEventListener('change', clickUpdatePlayerMeta);
 
 
 /*----- functions -----*/
@@ -192,6 +203,32 @@ function changeUpdateKomi() {
 
 function changeUpdateHandicap() {
   document.getElementById('handicap').textContent = handiSliderEl.value;
+}
+
+function clickUpdatePlayerMeta(evt) {
+  evt.stopPropagation;
+  switch (evt.target.id) {
+    case 'black-rank-up':
+      gameState.playerMeta.b.rank++;
+      break;
+    case 'black-rank-down':
+        gameState.playerMeta.b.rank--;
+        break;
+    case 'white-rank-up':
+      gameState.playerMeta.w.rank++;
+      break;
+    case 'white-rank-down':
+      gameState.playerMeta.w.rank--;
+      break;
+  }
+  console.log(evt);
+  if (evt.target.name = 'black-rank-certain') gameState.playerMeta.b.rankCertain = !gameState.playerMeta.b.rankCertain;
+  if (evt.target.name = 'white-rank-certain') gameState.playerMeta.w.rankCertain = !gameState.playerMeta.w.rankCertain;
+  if (evt.target.name = 'black-name') gameState.playerMeta.b.name = blackNameEl.value;
+  if (evt.target.name = 'white-name') gameState.playerMeta.w.name = whiteNameEl.value;
+
+  blackRankEl.textContent = RANKS[gameState.playerMeta.b.rank];
+  whiteRankEl.textContent = RANKS[gameState.playerMeta.w.rank];
 }
 
 function clickPass(evt) {
@@ -213,6 +250,7 @@ function clickMenu() {
   modalEl.style.visibility = 'visible';
   changeUpdateKomi();
   changeUpdateHandicap();
+  clickUpdatePlayerMeta();
 }
 
 function clickCloseMenu(evt) {
@@ -324,6 +362,11 @@ function clearCaptures() {
   }
 }
 
+function getDate() {
+  let d = new Date;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).charAt(-1)||0}${String(d.getMonth()+1).charAt(-0)}-${String(d.getDate()).charAt(-1)||0}${String(d.getDate()+1).charAt(-0)}`
+}
+"YYYY-MM-DD"
 function init() {
   gameState.winner = null;
   gameState.pass = null;
@@ -332,7 +375,7 @@ function init() {
   // gameState.turn = gameState.handicap ? -1 : 1;
   gameState.playerState.bCaptures = 0;
   gameState.playerState.wCaptures = 0;
-  // gameState.gameMeta.date = // get from browser window
+  gameState.gameMeta.date = getDate();
   // get any future meta from player input
   // gameState.playerMeta.b // get from player input
   // gameState.playerMeta.w // get from player input

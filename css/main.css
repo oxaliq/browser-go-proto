@@ -73,6 +73,15 @@ h4 {
   flex-direction: column;
 }
 
+#player-meta span[id$="rank"] {
+  margin: 0 2em;
+}
+
+#player-meta input[type="button"] {
+  margin: .25em;
+  height: 100%;
+}
+
 div[data-player-meta] {
   width: 100%;
   justify-self: stretch;

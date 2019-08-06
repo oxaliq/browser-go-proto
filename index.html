@@ -17,7 +17,7 @@
     <div>
       <form id="menu">
         <div id="game-meta">
-          <div class="menu-subblock"><span class="menu-heading">Date:</span><input type="text" name="date"></div>
+          <div class="menu-subblock"><span class="menu-heading">Date:</span><span id="date"></span></div>
           <div class="menu-subblock"><span class="menu-heading">Komi:</span><span id="komi"></span></div>
           <input type="range" min="-21.5" max="7.5" step="1" value="5.5" name="komi-slider">
           <div class="menu-subblock"><span class="menu-heading">Handicap:</span><span id="handicap"></span></div>
@@ -27,16 +27,16 @@
           <div data-player-meta="black">
             <h4 class="menu-heading">Black</h4>
             <span class="menu-heading">Name:</span><input type="text" name="black-name">
-            <span class="menu-heading">Rank:</span><input type="number" id="black-rank" max="38" steps="1" placeholder="15" name="black-rank">
+            <span class="menu-heading">Rank:</span><span id="black-rank">9k</span><input type="button" id="black-rank-up" value="▲"><input type="button" id="black-rank-down" value="▼">
             <input type="checkbox" name="black-rank-certain"><label for="black-rank-certain">Rank Certainty</label>
           </div>
           <div data-player-meta="white">
             <h4 class="menu-heading">White</h4>
             <span class="menu-heading">Name:</span><input type="text" name="white-name">
-            <span class="menu-heading">Rank:</span><input type="number" name="white-rank">
+            <span class="menu-heading">Rank:</span><span id="white-rank">9k</span><input type="button" id="white-rank-up" value="▲"><input type="button" id="white-rank-down" value="▼">
             <input type="checkbox" name="white-rank-certain"><label for="white-rank-certain">Rank Certainty</label>
           </div>
-          </div>
+        </div>
           <div id="game-record-space">
             <p id="instructions">Welcome to Browser Go!<br><br>If this is your first time playing Go, please see 
               <a href="https://www.youtube.com/watch?v=gECcsSeRcNo" target="_blank">this great tutorial video.</a><br><br>
