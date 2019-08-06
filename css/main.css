@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=La+Belle+Aurore|Raleway:300&display=swap');
+@import url('https://fonts.googleapis.com/css?family=La+Belle+Aurore|Raleway:300,600');
 
 * {
   box-sizing: border-box;
@@ -22,20 +22,21 @@ body {
   align-items: center;
   justify-content: center;
   visibility: hidden;
+  overflow-y: scroll;
 }
 
 #menu {
   background-color: rgb(250, 2250, 255, 0.9);
   padding: 1vmin;
   display: grid;
-  grid-template-columns: 60vw;
-  grid-template-rows: auto auto 60vw auto;
+  grid-template-columns: 80vw;
+  grid-template-rows: auto auto 80vw auto;
   grid-template-areas:
     "meta"
     "player"
     "record"
     "submit";
-  font: 18px 'La Belle Aurore', cursive;
+  font: 14px 'La Belle Aurore', cursive;
 }
 
 #menu .menu-subblock {
@@ -52,27 +53,39 @@ body {
 
 .menu-heading, content, #instructions, div[data-player-meta] label {
   font-family: 'Raleway', sans-serif;
+  font-weight: 300;
+}
+
+h4.menu-heading {
+  font-weight: 600;
+  margin: 1em .25em 0 .25em;
+  font-size: 110%;
 }
 
 #player-meta {
   grid-area: player;
   display: flex;
   justify-items: stretch;
+  flex-direction: column;
 }
 
 div[data-player-meta] {
-  width: 30vw;
-  justify-self: stretch;
-}
-
-div[data-player-meta] input[type="text"] {
   width: 100%;
   justify-self: stretch;
 }
 
+div[data-player-meta] input[type="text"] {
+  width: 90%;
+  justify-self: stretch;
+}
+
+div[data-player-meta] input {
+  margin: 1vmin;
+}
+
 div[data-player-meta] label {
   margin: .25em;
-  font-size: 14px;
+  font-size: 100%;
 }
 
 #game-record-space {
@@ -108,7 +121,7 @@ height: 100%
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]:focus
 {
-  width: 15%;
+
 }
 
 .rank-tick {
@@ -325,3 +338,16 @@ td .dot .seki {
 
 }
 
+@media only screen and (min-width: 560px) {
+  #player-meta {
+    flex-direction: row;
+  }
+  div[data-player-meta] {
+    width: 50%;
+  }
+  #menu {
+    grid-template-columns: 60vw;
+    grid-template-rows: auto auto 60vw auto;
+    font-size: 14px;
+  }
+}

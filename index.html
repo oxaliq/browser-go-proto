@@ -76,7 +76,7 @@
           <div data-player-meta="white">
             <h4 class="menu-heading">White</h4>
             <span class="menu-heading">Name:</span><input type="text" name="white-name">
-            <span class="menu-heading">Rank:</span><input type="text" name="white-rank">
+            <span class="menu-heading">Rank:</span><input type="number" name="white-rank">
             <input type="checkbox" name="white-rank-certain"><label for="white-rank-certain">Rank Certainty</label>
           </div>
           </div>
@@ -84,7 +84,10 @@
             <p id="instructions">Welcome to Browser Go!<br><br>If this is your first time playing Go, please see 
               <a href="https://www.youtube.com/watch?v=gECcsSeRcNo" target="_blank">this great tutorial video.</a><br><br>
               To begin a game enter player names and ranks above, then click "Suggest Komi" Browser Go will calculate the appropriate komi based on AGA guidelines.
-              To override Browser Go's suggestion, use the sliders above. Be sure to check the 'rank certainty' box if you're club-rated.<br><br>For now, Browser Go only supports games on a small board.
+              To override Browser Go's suggestion, use the sliders above. Be sure to check the 'rank certainty' box if you're club-rated.<br><br>
+              When the game begins, click on a legal point on the board to make a move. The active player's bowl will be highlighted. To pass, click on your bowl.
+              This will only be possible on your turn. To resign click on your capture tray. To view the game record or adjust player settings, click the kifu on black's side.<br><br>
+              For now, Browser Go only supports games on a small board.
               I've got great things planned for the future, though! Lookout for new releases on <a href="https://github.com/sorrelbri/browser-go">the GitHub page!</a></p>
             <p id="game-record"></p>
           </div>
