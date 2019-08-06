@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css?family=La+Belle+Aurore|Raleway:300,600');
+@import url('https://fonts.googleapis.com/css?family=La+Belle+Aurore|Raleway:300|Raleway:600');
 
 * {
   box-sizing: border-box;
   margin: 0;
   vertical-align: middle;
+  font-family: 'Raleway', sans-serif;
 }
 
 body {
@@ -19,13 +20,15 @@ body {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0,0,0,0.3);
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   visibility: hidden;
   overflow-y: scroll;
+
 }
 
 #menu {
+  position: relative;
   background-color: rgb(250, 2250, 255, 0.9);
   padding: 1vmin;
   display: grid;
@@ -37,6 +40,7 @@ body {
     "record"
     "submit";
   font: 14px 'La Belle Aurore', cursive;
+  min-height: 0;
 }
 
 #menu .menu-subblock {
@@ -56,7 +60,7 @@ body {
   font-weight: 300;
 }
 
-h4.menu-heading {
+h4 {
   font-weight: 600;
   margin: 1em .25em 0 .25em;
   font-size: 110%;
@@ -100,7 +104,7 @@ div[data-player-meta] label {
 
 #instructions, #game-record{
 border: 2px solid black;
-height: 100%
+height: 1;
 }
 
 #instructions:::-webkit-scrollbar-track {
@@ -148,6 +152,7 @@ content {
   align-items: center;
   justify-content: space-around;
   flex: 5;
+  height: 9vmin;
 }
 
 .player-pos#white-pos {
@@ -221,8 +226,9 @@ content {
   align-items: center;
 }
 
-.name-space p {
-  margin-bottom: 2vh;
+.name-space h4 {
+  font-size: 120%;
+  color: rgb(255,240,230)
 }
 
 #board-space {
@@ -291,6 +297,13 @@ content {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }
 
+#board-space td * * div.hoshi { /* to be added later */
+  background: radial-gradient(circle farthest-corner at center, #000 0%, #000 30%, rgba(0,0,0,0) 50%);
+  z-index: 3;
+  width: 100%;
+  height: 100%
+}
+
 td .stone {
   width: 85%;
   height: 85%;
@@ -331,8 +344,8 @@ td .dot[data-dot="black"] {
 td .dot[data-dot="none"] {
   background-color: transparent;
 }
-td .dot .dame {
-
+td .dot[data-dot="dame"] {
+  background-color: purple;
 }
 td .dot .seki {
 
@@ -350,4 +363,65 @@ td .dot .seki {
     grid-template-rows: auto auto 60vw auto;
     font-size: 14px;
   }
+}
+
+@media only screen and (min-width: 500px) {
+  .player-pos {
+    height: 14vh;
+  }
+  
+  #kifu {
+    order: 0;
+    height: 12vh;
+    width: 9vh;
+    background-color: #FFF;
+    transform: rotate(-20deg);
+  }
+  
+  .bowl {
+    margin: 2vh;
+    height: 12vh;
+    width: 12vh;
+  }
+  
+  .caps-space {
+    margin: 1vh;
+    height: 8vh;
+    width: 8vh;
+  }
+  
+  #board-space {
+    margin: 0 auto;
+    /* grid-area: board-space; */
+    display: flex;
+    flex-direction: column;
+    background-color: #EAB24E;
+    /* width: 90vmin; */
+    /* height: 90vmin; */
+    padding: 1vmin;
+    z-index: 1;
+    box-shadow: -2vmin 4vmin 3vmin rgba(145, 92, 23, 0.5);
+    flex: 1;
+  }
+  
+  #board-space table {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    height: 72vmin;
+    width: 72min;
+    margin: auto;
+  }
+  
+  #board-space td {
+    height: 8vmin;
+    width: 8vmin;
+    background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
+    border-radius: 50% solid black;
+    color: black;
+    margin: auto;
+    padding: 0;
+    vertical-align: middle;
+  }
+
 }

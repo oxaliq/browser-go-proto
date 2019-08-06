@@ -15,6 +15,11 @@ const DOTS_DATA = {
   's': 'seki'
 }
 
+const ranks = ['30k', '29k', '28k', '27k', '26k', '25k', '24k', '23k', '22k', '21k', '20k', 
+  '19k', '18k', '17k', '16k', '15k', '14k', '13k', '12k', '11k', '10k', 
+  '9k', '8k', '7k', '6k', '5k', '4k', '3k', '2k', '1k', 
+  '1d', '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d']
+
 const gameState = {
   winner: null,
   turn: 1, // turn logic depends on handicap stones
@@ -65,6 +70,7 @@ class Point {
     this.pos = [ x, y ]
     this.stone = 0; // this is where move placement will go 0, 1, -1 'k'
     this.legal;
+    this.territory;
     this.capturing = [];
     this.groupMembers = [];
     this.neighbors = {
@@ -101,8 +107,13 @@ class Point {
     for (let frn of frns) {
       this.groupMembers.push(frn);
     }
+    console.log(this);
+    console.log(this.groupMembers)
     // this.groupMembers = Array.from(new Set(this.groupMembers));
+    if (!this.groupMembers.length) return;
     for (let grpMem in this.groupMembers) {
+      debugger;
+      console.log(this);
       this.groupMembers = Array.from(new Set(this.groupMembers.concat(this.groupMembers[grpMem].groupMembers)));
     }
     for (let grpMem in this.groupMembers) {
@@ -120,6 +131,7 @@ class Point {
         this.capturing = this.capturing.concat(opp.groupMembers);
       };
     }
+    this.capturing = Array.from(new Set(this.capturing));
     return this.capturing;
   }
   checkGroup = () => { // liberty is true when called by move false when called by check Capture
@@ -155,7 +167,7 @@ const handiSliderEl = document.querySelector('input[name="handicap-slider"]');
 // ::hover-over on board to preview move (with legal move logic)
 document.getElementById('board').addEventListener('mousemove', hoverPreview);
 // click on board to play move
-document.getElementById('board').addEventListener('click', clickPlaceStone);
+document.getElementById('board').addEventListener('click', clickBoard);
 // ::hover-over on either bowl for pass, one-level undo options (CSS implementation)
 // click on menu items 
 // click on kifu to display game menu
@@ -220,6 +232,7 @@ function playerResign() {
 
 function hoverPreview(evt) {
   evt.stopPropagation();
+  if (gameState.pass > 1 || gameState.winner) return;
   // renders preview stone if move is legal
   let hover = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(hover);
@@ -265,11 +278,18 @@ function resolveCaptures(point) {
 }
 
 function checkKo(point, cap) {
-  if (point.getLiberties().length === 1 && cap.checkNeighbors(stone => stone.stone === gameState.turn * -1)) return true;
+  console.log(point);
+  console.log(point.getLiberties());
+  console.log(cap);
+  console.log(cap.checkNeighbors());
+  console.log(`${STONES_DATA[gameState.turn]}: ${point.pos[0]},${point.pos[1]}`)
+  if (!point.getLiberties().length && cap.checkNeighbors().filter(stone => stone.stone === gameState.turn * -1) 
+    && point.capturing.length === 1) return true;
 }
 
-function clickPlaceStone(evt) {
+function clickBoard(evt) {
   evt.stopPropagation();
+  if (gameState.pass > 1 || gameState.winner) return;
   // checks for placement and pushes to cell
   let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(placement);
@@ -423,16 +443,34 @@ function init() {
 };
     
 function render(hoverPoint) {
+  if (gameState.winner || gameState.pass > 1) {
+    renderTerritory();
+  }
   gameState.gameRecord.length? renderTurn() : renderFirstTurn();
   renderBoard();
   renderCaps();
+}
+
+function renderTerritory() {
+  console.log('rendering territory')
+  boardState.forEach(val => {
+    let stoneElem = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).childNodes[1].childNodes[0];
+    console.log(stoneElem)
+    stoneElem.setAttribute("data-dot", DOTS_DATA[val.territory]);
+  })
+  console.log('rendering finished')
 }
 
 function renderFirstTurn() {
   document.getElementById(`${STONES_DATA[gameState.turn]}-bowl`).toggleAttribute('data-turn');
 }
 function renderTurn() {
-  document.querySelectorAll(`.bowl`).forEach(bowl => bowl. toggleAttribute('data-turn'));
+  if (gameState.winner || gameState.pass > 1) document.querySelectorAll(`.bowl`).forEach(bowl => {
+    bowl.removeAttribute('data-turn');
+    bowl.toggleAttribute('data-turn');
+
+  });
+  document.querySelectorAll(`.bowl`).forEach(bowl => bowl.toggleAttribute('data-turn'));
 }
 
 function renderBoard() {
@@ -455,8 +493,32 @@ function renderPreview(hoverPoint) {
   })
 }
 
-function endGame() {
+function endGameSetTerritory() {
+  console.log('ending game');
+  boardState.forEach(pt => { 
+    pt.territory = pt.stone ? 'd' : 'd'
+    console.log(pt);
+  });
+}
 
+function endGame() {
+  endGameSetTerritory()
+  
+  // join all remaining groups
+  // check remaining groups life
+        // search empty spaces on board for deadShapes
+            //  compare spaces to rotations of deadShapes[...]
+            // 'd' if empty spaces 
+
+  render();
+        // return dead group suggestion
+        // users can flip status of any dead group overlay( 1, -1 ) 
+        // confirm state
+            // calculate score = points in overlay for each player + captures
+            // render final board state with dead groups removed
+        // log game record
+            // stringify according to .sgf format
+            // log as text
 }
 
   // functions
