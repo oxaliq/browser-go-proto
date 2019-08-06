@@ -1,8 +1,11 @@
+@import url('https://fonts.googleapis.com/css?family=La+Belle+Aurore|Raleway:300&display=swap');
+
 * {
   box-sizing: border-box;
   margin: 0;
   vertical-align: middle;
 }
+
 body {
   height: vh;
   width: vw;
@@ -22,31 +25,112 @@ body {
 }
 
 #menu {
-  background-color: #fff;
+  background-color: rgb(250, 2250, 255, 0.9);
   padding: 1vmin;
+  display: grid;
+  grid-template-columns: 60vw;
+  grid-template-rows: auto auto 60vw auto;
+  grid-template-areas:
+    "meta"
+    "player"
+    "record"
+    "submit";
+  font: 18px 'La Belle Aurore', cursive;
+}
 
+#menu .menu-subblock {
+  display: flex;
+  justify-content: space-between;
+  margin: .25em;
+}
+
+#game-meta {
+  grid-area: meta;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-heading, content, #instructions, div[data-player-meta] label {
+  font-family: 'Raleway', sans-serif;
+}
+
+#player-meta {
+  grid-area: player;
+  display: flex;
+  justify-items: stretch;
+}
+
+div[data-player-meta] {
+  width: 30vw;
+  justify-self: stretch;
+}
+
+div[data-player-meta] input[type="text"] {
+  width: 100%;
+  justify-self: stretch;
+}
+
+div[data-player-meta] label {
+  margin: .25em;
+  font-size: 14px;
+}
+
+#game-record-space {
+  grid-area: record;
+}
+
+#instructions {
+  padding: .5em;
+  line-height: 1.5;
+  overflow: scroll;
+}
+
+#instructions, #game-record{
+border: 2px solid black;
+height: 100%
+}
+
+#instructions:::-webkit-scrollbar-track {
+  border: 1px solid rgba(0,0,0,0.3);
+}
+
+#game-record {
+  visibility: hidden;
+}
+
+#game-update-space {
+  grid-area: submit;
+  margin: .5em;
+  display: flex;
+  justify-content: space-between;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]:focus
+{
+  width: 15%;
+}
+
+.rank-tick {
+  
+}
+
+.rank-tick li {
+  position: relative;
+  display: flex;
+  flex-wrap: none;
 }
 
 content {
   background-color: #61a6c2;
-  /* display: grid;
-  grid-template-columns: 100vmin;
-  grid-template-rows: 1fr 100vmin 1fr;
-  grid-template-areas:
-    "white-pos"
-    "board-space"
-    "black-pos"; */
   display: flex !important;
   flex-direction: column; 
-  /* justify-content: flex-end; */
   justify-content: space-between !important;
-  /* justify-items: stretch !important; */
   height: 100vh;
   width: 100vw;
 }
 
 .player-pos {
-  /* flex-grow: 2; */
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -54,12 +138,10 @@ content {
 }
 
 .player-pos#white-pos {
-  /* grid-area: white-pos; */
   
 }
 
 .player-pos#black-pos {
-  /* grid-area: black-pos; */
   flex-direction: row-reverse;
   justify-self: flex-end;
 }
@@ -108,7 +190,6 @@ content {
 
 .caps-space {
   color: #FFF;
-  order: 1;
   margin: 1vh;
   height: 6vh;
   width: 6vh;
@@ -118,6 +199,17 @@ content {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.name-space {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.name-space p {
+  margin-bottom: 2vh;
 }
 
 #board-space {

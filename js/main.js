@@ -19,7 +19,7 @@ const gameState = {
   winner: null,
   turn: 1, // turn logic depends on handicap stones
   pass: null,
-  komi: null, // komi depends on handicap stones
+  komi: null, // komi depends on handicap stones + player rank
   handicap: null,
   boardSize: 9,
   playerState: {
@@ -143,6 +143,8 @@ class Point {
 const whiteCapsEl = document.getElementById("white-caps");
 const blackCapsEl = document.getElementById("black-caps");
 const modalEl = document.querySelector('.modal');
+const komiSliderEl = document.querySelector('input[name="komi-slider"]');
+const handiSliderEl = document.querySelector('input[name="handicap-slider"]');
 // store modal #menu for displaying game info
 // store 
 
@@ -163,12 +165,22 @@ document.getElementById('kifu').addEventListener('click', clickMenu);
 document.getElementById('white-caps-space').addEventListener('click', clickResign);
 document.getElementById('black-caps-space').addEventListener('click', clickResign);
 modalEl.addEventListener('click', clickCloseMenu);
+komiSliderEl.addEventListener('change', changeUpdateKomi);
+handiSliderEl.addEventListener('change', changeUpdateHandicap);
 
 
 /*----- functions -----*/
 init();
 
 let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
+
+function changeUpdateKomi() {
+  document.getElementById('komi').textContent = komiSliderEl.value;
+}
+
+function changeUpdateHandicap() {
+  document.getElementById('handicap').textContent = handiSliderEl.value;
+}
 
 function clickPass(evt) {
   if (evt.target.parentElement.id === `${STONES_DATA[gameState.turn]}-bowl`) playerPass();
@@ -187,11 +199,13 @@ function playerPass() {
 
 function clickMenu() {
   modalEl.style.visibility = 'visible';
+  changeUpdateKomi();
+  changeUpdateHandicap();
 }
 
 function clickCloseMenu(evt) {
   evt.stopPropagation();
-  modalEl.style.visibility = 'hidden';
+  if (evt.target.className === "modal") modalEl.style.visibility = 'hidden';
 }
 
 function clickResign(evt) {
