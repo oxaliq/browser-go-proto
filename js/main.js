@@ -65,10 +65,8 @@ class Point {
     this.pos = [ x, y ]
     this.stone = 0; // this is where move placement will go 0, 1, -1 'k'
     this.legal;
-    this.chk = false; // this is where 'chk', 'l'
     this.capturing = [];
     this.groupMembers = [];
-    this.captureChecked = false;
     this.neighbors = {
       top: {},
       btm: {},
@@ -131,12 +129,6 @@ class Point {
       return false;
       }
     }
-  findStone = (stone) => {
-    return this.checkNeighbors().filter(val => {
-      if ( val.stone === (stone) ) return val;
-    });
-     //returns an array of neighbors for the value of stone
-  }
 }
 // could use this Array to iterate through and create 
 // let boardCreator = new Array(gameState.boardSize).fill(gameState.boardSize);
@@ -226,7 +218,6 @@ function hoverPreview(evt) {
 function checkLegal(point) {
   clearOverlay();
   // first step in logic: is point occupied, or in ko
-  point.chk = true; //check
   if (point.stone) return false;
   // if point is not empty check if liberties
   if (point.getLiberties().length < 1) {
@@ -242,26 +233,25 @@ function checkLegal(point) {
 function clearOverlay() { //legal and check
   for (let point in boardState) {
     point = boardState[point];
-    point.chk = false;
     point.legal = false;
   }
 }
 
 function resolveCaptures(point) {
-  if(!point.capturing.length && !point.captureChecked) {
+  if(!point.capturing.length) {
     point.checkCapture();
   }
   if(point.capturing.length) {
     point.capturing.forEach(cap => {
       gameState.playerState[gameState.turn > 0 ? 'bCaptures' : 'wCaptures']++;
       cap.groupMembers = [];
-      cap.stone = 0;
+      cap.stone = checkKo(point, cap) ? 'k' : 0;
     })
   }
 }
 
-function checkKo(cap, point) {
-  return cap.findStone(gameState.turn).length === 4 && point.getLiberties().length;//determines ponnuki
+function checkKo(point, cap) {
+  if (point.getLiberties().length === 1 && cap.checkNeighbors(stone => stone.stone === gameState.turn * -1)) return true;
 }
 
 function clickPlaceStone(evt) {
@@ -296,7 +286,6 @@ function clearPass() {
 function clearCaptures() {
   for (let point in boardState) {
     point = boardState[point];
-    point.captureChk = false;
     point.capturing = [];
   }
 }
