@@ -234,6 +234,10 @@ const whiteNameInputEl = document.querySelector('input[name="white-name"]')
 const blackNameDisplayEl = document.querySelector('h4#black-player-name');
 const whiteNameDisplayEl = document.querySelector('h4#white-player-name');
 const gameHudEl = document.querySelector('#game-hud p');
+const dateEl = document.getElementById('date');
+const boardSizeEl = document.getElementById('board-size-radio');
+const komiDisplayEl = document.getElementById('komi');
+const handiDisplayEl = document.getElementById('handicap');
 
 // store modal #menu for displaying game info
 // store 
@@ -254,6 +258,8 @@ document.getElementById('player-meta').addEventListener('click', clickUpdatePlay
 document.getElementById('player-meta').addEventListener('change', clickUpdatePlayerMeta);
 document.querySelector('input[name="komi-suggest"]').addEventListener('click', clickKomiSuggestion);
 gameHudEl.addEventListener('click', clickGameHud);
+boardSizeEl.addEventListener('click', clickBoardSize);
+document.querySelector('input[name="game-start"]').addEventListener('click', clickSubmitStart);
 
 
 /*----- functions -----*/
@@ -262,11 +268,15 @@ init();
 let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
 
 function changeUpdateKomi() {
-  document.getElementById('komi').textContent = komiSliderEl.value;
+  komiDisplayEl.textContent = komiSliderEl.value;
+  gameState.komi = komiSliderEl.value;
+  renderMenu();
 }
 
 function changeUpdateHandicap() {
-  document.getElementById('handicap').textContent = handiSliderEl.value;
+  handiDisplayEl.textContent = handiSliderEl.value  !== 1 ? handiSliderEl.value : 0;
+  gameState.handicap = handiSliderEl.value !== 1 ? handiSliderEl.value : 0;
+  renderMenu();
 }
 
 function clickUpdatePlayerMeta(evt) {
@@ -288,14 +298,20 @@ function clickUpdatePlayerMeta(evt) {
   }
   if (evt.target.name = 'black-rank-certain') gameState.playerMeta.b.rankCertain = !gameState.playerMeta.b.rankCertain;
   if (evt.target.name = 'white-rank-certain') gameState.playerMeta.w.rankCertain = !gameState.playerMeta.w.rankCertain;
-  blackRankEl.textContent = RANKS[gameState.playerMeta.b.rank];
-  whiteRankEl.textContent = RANKS[gameState.playerMeta.w.rank];
+  renderMenu();
   
 }
 
-function clickKomiSuggestion() {
-  let sugg = KOMI_REC[Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
-  let handi = HANDI_REC[Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
+function clickBoardSize() {
+  gameState.boardSize = boardSizeEl.value;
+  renderMenu();
+}
+
+function clickKomiSuggestion(evt) {
+  debugger;
+  evt.stopPropagation();
+  let sugg = KOMI_REC[gameState.boardSize][Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
+  let handi = HANDI_REC[gameState.boardSize][Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
   gameState.komi = sugg;
   gameState.handicap = handi;
   renderMenu();
@@ -312,8 +328,28 @@ function clickSubmitStart() {
   initGame();
 }
 
+function renderKomi() {
+  komiSliderEl.value = gameState.komi;
+  komiDisplayEl.textContent = gameState.komi;
+  if (gameState.gameRecord.length) komiSliderEl.setAttribute('disabled', true);
+}
+
+function renderHandiSlider() {
+  handiSliderEl.value = gameState.handicap;
+  handiDisplayEl.textContent = gameState.handicap;
+  if (gameState.gameRecord.length) handiSliderEl.setAttribute('disabled', true);
+}
+
+function renderBoardSizeRadio() {
+  boardSizeEl.value = gameState.boardSize;
+  if (gameState.gameRecord.length) boardSizeEl.setAttribute('disabled', true);
+}
+
 function renderMenu() {
-  komiSliderEl.value = sugg;
+  dateEl.textContent = gameState.gameMeta.date;
+  renderKomi()
+  renderHandiSlider();
+  renderBoardSizeRadio();
   blackNameDisplayEl.textContent = gameState.playerMeta.b.name;
   whiteNameDisplayEl.textContent = gameState.playerMeta.w.name;
   blackRankEl.textContent = RANKS[gameState.playerMeta.b.rank];
@@ -332,7 +368,7 @@ function playerPass() {
   gameState.pass++;
   if (gameState.pass === 2) return endGame();
   gameState.turn*= -1;
-  render();
+  renderGame();
 }
 
 function clickMenu() {
@@ -344,12 +380,12 @@ function clickMenu() {
 
 function startMenu() {
   modalEl.style.visibility = 'visible';
-  renderMenu;
+  renderMenu();
 }
 
 function clickCloseMenu(evt) {
   evt.stopPropagation();
-  if (evt.target.className === "modal") modalEl.style.visibility = 'hidden';
+  if (evt.target.className === "modal" && gameState.gameRecord.length) modalEl.style.visibility = 'hidden';
 }
 
 function clickResign(evt) {
@@ -421,7 +457,7 @@ function editTerritory(evt) {
   let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(placement);
   point.cycleTerritory();
-  render();
+  renderGame();
 }
 
 function checkKo(point, cap) {
@@ -445,7 +481,7 @@ function clickBoard(evt) {
   clearCaptures();
   gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: ${point.pos}`)
   gameState.turn*= -1;
-  render();
+  renderGame();
 }
 
 function clearKo() {
@@ -487,28 +523,26 @@ function getDate() {
 function init() {
   gameState.gameMeta.date = getDate();
   gameState.komi = 5.5; // get komi from player input
-  startMenu();
   gameState.winner = null;
   gameState.pass = null;
-  // gameState.handicap = ; // get handicap from player input
-  gameState.turn = gameState.handicap ? -1 : 1;
   gameState.boardSize = 9;
   gameState.playerState.bCaptures = 0;
   gameState.playerState.wCaptures = 0;
-  // get any future meta from player input
-  // gameState.playerMeta.b // get from player input
-  // gameState.playerMeta.w // get from player input
-  gameState.gameRecord = []; // clear game record from previous game
-  // gameState.boardState // create board from user input
-
-  //need init player meta
-  initBoard();
-  // testing board state for moves at [32]
-  gameState.turn = 1;
-  render();
+  gameState.gameRecord = [];
+  boardState = [];
+  startMenu();
 };
+
+function initGame() {
+  gameState.winner = null;
+  gameState.pass = null;
+  gameState.turn = gameState.handicap ? -1 : 1;
+  
+  initBoard();
+  renderGame();
+}
     
-function render() {
+function renderGame() {
   if (gameState.winner || gameState.pass > 1) {
     renderTerritory();
     renderMessage();
@@ -527,7 +561,7 @@ function renderMessage() {
   else if (gameState.winner && gameState.pass > 1) { 
     gameHudEl.style.visibility = 'visible';
     gameHudEl.style.cursor = 'default';
-    gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name} won by ${Math.abs(gameState.playerState.wScore - gameState.playerState.bScore)}`;
+    gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name || STONES_DATA[gameState.winner]} won by ${Math.abs(gameState.playerState.wScore - gameState.playerState.bScore)}`;
   } else if (gameState.pass > 1) {
     gameHudEl.style.visibility = 'visible';
     gameHudEl.textContent = 'click to finalize game'
@@ -599,7 +633,7 @@ function calculateWinner() {
     + blackTerritory;
   gameState.winner = gameState.playerState.wScore > gameState.playerState.bScore ? -1 : 1;
   gameState.gameRecord.push(`${STONES_DATA[gameState.winner]}: +${Math.abs(gameState.playerState.wScore - gameState.playerState.bScore)}`)
-  render();
+  renderGame();
 }
 
 function endGameSetTerritory() {
@@ -636,7 +670,7 @@ function emptyPointSetTerritory(emptyPoints) {
         return acc + wNbr;
       }, 0);
       pt.groupMembers.forEach(grp => {
-        if (Math.abs(b - w) < 4) grp.territory = 'd'
+        if (Math.abs(b - w) < 4 && b && w) grp.territory = 'd'
         else grp.territory = b > w ? 1 : -1;
       })
     });
@@ -644,54 +678,9 @@ function emptyPointSetTerritory(emptyPoints) {
 
 function endGame() {
   if (!gameState.winner) endGameSetTerritory()
-
-  
-  // join all remaining groups
-  // check remaining groups life
-
-        // search empty spaces on board for deadShapes
-            //  compare spaces to rotations of deadShapes[...]
-            // 'd' if empty spaces 
-
-            // return dead group suggestion
-            // users can flip status of any dead group overlay( 1, -1 ) 
-            // confirm state
-            // calculate score = points in overlay for each player + captures
-            // render final board state with dead groups removed
-            // log game record
-            // stringify according to .sgf format
-            // log as text
-  render();
+  renderGame();
 }
 
-  // game-end
-  // render territory counts
-  // checkLegalMove
-  // clear overlay
-  // if move is not '0', move is illegal (opposing player or 'k' for ko)
-  // iterate through neighboring points in clockwise order
-  // if anyone is '0' move is legal - call render preview
-  // if neighboring point is opposing player
-  // cycle through opposing player group marking points as overlay: 'chk' when checked and 
-  // overlay: 'hold' if they are neighboring points of opposing player color
-  // if any neighboring point is '0' terminate cycle and move to next neighboring point of original move
-  // if there are unchecked points of 'hold' return
-  // if no boardState: 0 points, move is legal overlay: 'l'
-  // set all 'chk' to 'x' to represent stones that will be captured upon move
-            // if neighboring point is player's
-                // cycle through player group marking points as overlay: 'chk' || 'hold'
-                // if any neighboring point is '0' ternminate cycle and mark point as 'l'
-    // set move
-        // if checkLegalMove has returned '0' i2llegal move message?
-        // if move state is 'l' 
-            // push boardState to lastState
-            // push 'l' move to boardState
-            // resolve captures
-                // for all 'x' in overlay 
-                    // count number and add to playerCaptures
-                    // set boardState to '0'
-        // pass--
-        // push move to game record
     // game record: [ 0: handicapStones Obj, 1: 1stMove([moveState[],moveState[][])]
     // pass() pass++ and player turn to other player
     // gameEnd when pass = 2

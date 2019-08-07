@@ -13,8 +13,8 @@ a working game of go for a 9x9 board that
 - [x] logs game record
 - [x] allows players to pass or resign
 - [x] ends game upon 2 consecutive passes
-- [ ] calculates estimated score at game end
-- [ ] compares board groups to most common dead shapes
+- [x] calculates estimated score at game end
+- [x] suggests dead groups
 - [x] allows users to override dead group estimates
 - [ ] allows users to submit finalized score to game record
 - [ ] displays game record as string
@@ -27,7 +27,7 @@ stretch goals
 - [ ] add stone placement sounds
   
 superstretch goals
-- [x] allows users to select board size (9x9, 13x13, 19x19)
+- [ ] allows users to select board size (9x9, 13x13, 19x19)
 - [ ] allows users to load .sgf main lines
 - [ ] allow for responsivity in the form of
 - - [ ]  9x9 games simply stretch with screen size
