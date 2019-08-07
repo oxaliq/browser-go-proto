@@ -15,10 +15,36 @@ const DOTS_DATA = {
   's': 'seki'
 }
 
-const RANKS = ['30k', '29k', '28k', '27k', '26k', '25k', '24k', '23k', '22k', '21k', '20k', 
+const RANKS = [
+  '30k', '29k', '28k', '27k', '26k', '25k', '24k', '23k', '22k', '21k', '20k', 
   '19k', '18k', '17k', '16k', '15k', '14k', '13k', '12k', '11k', '10k', 
   '9k', '8k', '7k', '6k', '5k', '4k', '3k', '2k', '1k', 
-  '1d', '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d']
+  '1d', '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d'
+];
+// index corresponds to difference in player rank
+const KOMI_REC = {
+  '9': [
+    5.5, 2.5, -0.5, -3.5, -6.5, -9.5, 12.5, 15.5, 18.5, 21.5
+  ],
+  '13': [
+    5.5, 0.5, -5.5, 0.5, -5.5, 0.5, -5.5, 0.5, -5.5, 0.5
+  ],
+  '19': [
+    7.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5
+  ]
+}
+
+const HANDI_REC = {
+  '9': [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  ],
+  '13': [
+    0, 0, 0, 2, 2, 3, 3, 4, 4, 5
+  ],
+  '19': [
+    0, 0, 2, 3, 4, 5, 6, 7, 8, 9
+  ]
+}
 
 const gameState = {
   winner: null,
@@ -54,13 +80,39 @@ const gameState = {
 // deadShapes{}
 
 // index represents handicap placement, eg handiPlace[1] = { (3, 3), (7, 7) }
-const handiPlace = [ 0, 
-  [ [ 3, 3 ], [ 7, 7 ] ], 
-  [ [ 3, 3 ], [ 7, 7 ], [ 3, 7 ] ], 
-  [ [ 3, 3 ], [ 7, 7 ], [ 3, 7 ], [ 7, 3 ] ] ];
+const HANDI_PLACE = {
+  '9' : [
+    0, 0,
+    [ [ 7, 3 ], [ 3, 7 ] ], 
+    [ [ 7, 7 ], [ 7, 3 ], [ 3, 7 ] ], 
+    [ [ 3, 3 ], [ 7, 7 ], [ 3, 7 ], [ 7, 3 ] ] 
+  ],
+  '13' : [
+    0, 0,
+    [ [ 4, 9 ], [ 9, 4 ] ],
+    [ [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
+    [ [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
+    [ [ 7, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
+    [ [ 7, 4 ], [ 4, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
+    [ [ 7, 7 ], [ 7, 4 ], [ 4, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
+    [ [ 9, 7 ], [ 7, 4 ], [ 7, 9 ], [ 4, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
+    [ [ 7, 7 ], [ 9, 7 ], [ 7, 4 ], [ 7, 9 ], [ 4, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
+  ],
+  '19' : [
+    0, 0,
+    [ [ 4, 16 ], [ 16, 4 ] ],
+    [ [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 9, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 9, 4 ], [ 4, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 9, 9 ], [ 9, 4 ], [ 4, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 16, 9 ], [ 9, 4 ], [ 9, 16 ], [ 4, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 9, 9 ], [ 16, 9 ], [ 9, 4 ], [ 9, 16 ], [ 4, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+  ]
+};
   
   /*----- app's state (variables) -----*/
-let boardState;
+let boardState = [];
 
 
   // define initial game state
@@ -131,10 +183,24 @@ class Point {
   checkGroup = () => { // liberty is true when called by move false when called by check Capture
     let frns = this.checkNeighbors().filter(nbr => nbr.stone === gameState.turn);
     for (let frn in frns) {
-      console.log(frns[frn]);
       if (frns[frn].groupMembers.find(stone => stone.getLiberties().find(liberty => liberty !== this))) return true;
       continue;
       }
+    }
+    cycleTerritory = () => {
+      this.groupMembers.forEach(pt => {
+        switch (pt.territory) {
+          case 1:
+            pt.territory = -1;
+            break;
+          case -1:
+            pt.territory = 'd';
+            break;
+          case 'd':
+            pt.territory = 1;
+            break;
+        }
+      })
     }
 }
 // could use this Array to iterate through and create 
@@ -188,6 +254,8 @@ komiSliderEl.addEventListener('change', changeUpdateKomi);
 handiSliderEl.addEventListener('change', changeUpdateHandicap);
 document.getElementById('player-meta').addEventListener('click', clickUpdatePlayerMeta);
 document.getElementById('player-meta').addEventListener('change', clickUpdatePlayerMeta);
+document.querySelector('input[name="komi-suggest"]').addEventListener('click', clickKomiSuggestion);
+gameHudEl.addEventListener('click', clickSubmitScore);
 
 
 /*----- functions -----*/
@@ -204,19 +272,21 @@ function changeUpdateHandicap() {
 }
 
 function clickUpdatePlayerMeta(evt) {
-  switch (evt.target.id) {
-    case 'black-rank-up':
-      gameState.playerMeta.b.rank++;
-      break;
-    case 'black-rank-down':
+  if (evt.target.id) {
+    switch (evt.target.id) {
+      case 'black-rank-up':
+        gameState.playerMeta.b.rank++;
+        break;
+      case 'black-rank-down':
         gameState.playerMeta.b.rank--;
         break;
-    case 'white-rank-up':
-      gameState.playerMeta.w.rank++;
-      break;
-    case 'white-rank-down':
-      gameState.playerMeta.w.rank--;
-      break;
+      case 'white-rank-up':
+        gameState.playerMeta.w.rank++;
+        break;
+      case 'white-rank-down':
+        gameState.playerMeta.w.rank--;
+        break;
+    }
   }
   if (evt.target.name = 'black-rank-certain') gameState.playerMeta.b.rankCertain = !gameState.playerMeta.b.rankCertain;
   if (evt.target.name = 'white-rank-certain') gameState.playerMeta.w.rankCertain = !gameState.playerMeta.w.rankCertain;
@@ -226,17 +296,32 @@ function clickUpdatePlayerMeta(evt) {
 }
 
 function clickKomiSuggestion() {
-  //
+  let sugg = KOMI_REC[Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
+  let handi = HANDI_REC[Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
+  gameState.komi = sugg;
+  gameState.handicap = handi;
+  renderMenu();
+}
+
+function clickSubmitScore() {
+  if (gameState.pass > 1 && !gameState.winner) calculateWinner();
 }
 
 function clickSubmitStart() {
-
+  
   gameState.playerMeta.b.name = blackNameInputEl.value;
   gameState.playerMeta.w.name = whiteNameInputEl.value;
+  initGame();
+}
+
+function renderMenu() {
+  komiSliderEl.value = sugg;
   blackNameDisplayEl.textContent = gameState.playerMeta.b.name;
   whiteNameDisplayEl.textContent = gameState.playerMeta.w.name;
+  blackRankEl.textContent = RANKS[gameState.playerMeta.b.rank];
+  whiteRankEl.textContent = RANKS[gameState.playerMeta.w.rank];
 }
-  
+
 function clickPass(evt) {
   if (evt.target.parentElement.id === `${STONES_DATA[gameState.turn]}-bowl`) playerPass();
 }
@@ -324,6 +409,13 @@ function resolveCaptures(point) {
   }
 }
 
+function editTerritory(evt) {
+  let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
+  let point = findPointFromIdx(placement);
+  point.cycleTerritory();
+  render();
+}
+
 function checkKo(point, cap) {
   if (!point.getLiberties().length && cap.checkNeighbors().filter(stone => stone.stone === gameState.turn * -1) 
     && point.capturing.length === 1) return true;
@@ -331,7 +423,7 @@ function checkKo(point, cap) {
 
 function clickBoard(evt) {
   evt.stopPropagation();
-  if (gameState.pass > 1 || gameState.winner) return;
+  if (gameState.pass > 1 || gameState.winner) return editTerritory(evt);
   // checks for placement and pushes to cell
   let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(placement);
@@ -366,6 +458,20 @@ function clearCaptures() {
   }
 }
 
+function initBoard() {
+  let i = 0;
+  while (i < gameState.boardSize * gameState.boardSize) {
+    let point = new Point( Math.floor(i / gameState.boardSize) + 1, i % gameState.boardSize + 1)
+    boardState.push(point);
+    i++;
+  }
+  // initHandi();
+}
+
+function initHandi() {
+  // HANDI_PLACE[gameState.handicap]
+}
+
 function getDate() {
   let d = new Date;
   return `${d.getFullYear()}-${String(d.getMonth()+1).charAt(-1)||0}${String(d.getMonth()+1).charAt(-0)}-${String(d.getDate()).charAt(-1)||0}${String(d.getDate()+1).charAt(-0)}`
@@ -375,7 +481,8 @@ function init() {
   gameState.pass = null;
   // gameState.komi = ; // get komi from player input
   // gameState.handicap = ; // get handicap from player input
-  // gameState.turn = gameState.handicap ? -1 : 1;
+  gameState.turn = gameState.handicap ? -1 : 1;
+  gameState.boardSize = 9;
   gameState.playerState.bCaptures = 0;
   gameState.playerState.wCaptures = 0;
   gameState.gameMeta.date = getDate();
@@ -384,107 +491,11 @@ function init() {
   // gameState.playerMeta.w // get from player input
   gameState.gameRecord = []; // clear game record from previous game
   // gameState.boardState // create board from user input
-  
+
   //need init player meta
-  
-  boardState = [ new Point(1,1), new Point(1,2), new Point(1,3), new Point(1,4), new Point(1,5), new Point(1,6), new Point(1,7), new Point(1,8), new Point(1,9),
-  new Point(2,1), new Point(2,2), new Point(2,3), new Point(2,4), new Point(2,5), new Point(2,6), new Point(2,7), new Point(2,8), new Point(2,9),
-  new Point(3,1), new Point(3,2), new Point(3,3), new Point(3,4), new Point(3,5), new Point(3,6), new Point(3,7), new Point(3,8), new Point(3,9),
-  new Point(4,1), new Point(4,2), new Point(4,3), new Point(4,4), new Point(4,5), new Point(4,6), new Point(4,7), new Point(4,8), new Point(4,9),
-  new Point(5,1), new Point(5,2), new Point(5,3), new Point(5,4), new Point(5,5), new Point(5,6), new Point(5,7), new Point(5,8), new Point(5,9),
-  new Point(6,1), new Point(6,2), new Point(6,3), new Point(6,4), new Point(6,5), new Point(6,6), new Point(6,7), new Point(6,8), new Point(6,9),
-  new Point(7,1), new Point(7,2), new Point(7,3), new Point(7,4), new Point(7,5), new Point(7,6), new Point(7,7), new Point(7,8), new Point(7,9),
-  new Point(8,1), new Point(8,2), new Point(8,3), new Point(8,4), new Point(8,5), new Point(8,6), new Point(8,7), new Point(8,8), new Point(8,9),
-  new Point(9,1), new Point(9,2), new Point(9,3), new Point(9,4), new Point(9,5), new Point(9,6), new Point(9,7), new Point(9,8), new Point(9,9)
-  ];
+  initBoard();
   // testing board state for moves at [32]
   gameState.turn = 1;
-
-  // boardState[1].stone = 1;
-  // boardState[1].joinGroup();
-  // boardState[4].stone = 1;
-  // boardState[4].joinGroup();
-  // boardState[5].stone = 1;
-  // boardState[5].joinGroup();
-  // boardState[6].stone = 1;
-  // boardState[6].joinGroup();
-  // boardState[9].stone = 1;
-  // boardState[9].joinGroup();
-  // boardState[10].stone = -1;
-  // boardState[10].joinGroup();
-  // boardState[11].stone = 1;
-  // boardState[11].joinGroup();
-  // boardState[13].stone = -1;
-  // boardState[13].joinGroup();
-  // boardState[14].stone = -1;
-  // boardState[14].joinGroup();
-  // boardState[15].stone = -1;
-  // boardState[15].joinGroup();
-  // boardState[16].stone = 1;
-  // boardState[16].joinGroup();
-  // boardState[18].stone = 1;
-  // boardState[18].joinGroup();
-  // boardState[19].stone = -1;
-  // boardState[19].joinGroup();
-  // boardState[20].stone = 1;
-  // boardState[20].joinGroup();
-  // boardState[21].stone = 1;
-  // boardState[21].joinGroup();
-  // boardState[22].stone = 1;
-  // boardState[22].joinGroup();
-  // boardState[23].stone = -1;
-  // boardState[23].joinGroup();
-  // boardState[24].stone = 1;
-  // boardState[24].joinGroup();
-  // boardState[25].stone = 1;
-  // boardState[25].joinGroup();
-  // boardState[27].stone = 1;
-  // boardState[27].joinGroup();
-  // boardState[28].stone = -1;
-  // boardState[28].joinGroup();
-  // boardState[29].stone = -1;
-  // boardState[29].joinGroup();
-  // boardState[30].stone = -1;
-  // boardState[30].joinGroup();
-  // boardState[31].stone = -1;
-  // boardState[31].joinGroup();
-  // boardState[33].stone = -1;
-  // boardState[33].joinGroup();
-  // boardState[34].stone = 1;
-  // boardState[34].joinGroup();
-  // boardState[36].stone = 1;
-  // boardState[36].joinGroup();
-  // boardState[37].stone = -1;
-  // boardState[37].joinGroup();
-  // boardState[38].stone = 1;
-  // boardState[38].joinGroup();
-  // boardState[39].stone = 1;
-  // boardState[39].joinGroup();
-  // boardState[40].stone = 1;
-  // boardState[40].joinGroup();
-  // boardState[41].stone = -1;
-  // boardState[41].joinGroup();
-  // boardState[42].stone = 1;
-  // boardState[42].joinGroup();
-  // boardState[46].stone = 1;
-  // boardState[46].joinGroup();
-  // boardState[56].stone = 1;
-  // boardState[56].joinGroup();
-  // boardState[57].stone = 1;
-  // boardState[57].joinGroup();
-  // boardState[65].stone = -1;
-  // boardState[65].joinGroup();
-  // boardState[66].stone = -1;
-  // boardState[66].joinGroup();
-  // boardState[67].stone = 1;
-  // boardState[67].joinGroup();
-  // boardState[74].stone = -1;
-  // boardState[75].stone = -1;
-  // boardState[76].stone = 1;
-
-
-  clearCaptures();
-  // end testing board state
   render();
 };
     
@@ -499,7 +510,14 @@ function render() {
 }
 
 function renderMessage() {
-  if (gameState.winner) gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name} won by resignation`
+  if (gameState.winner && gameState.pass < 2) {
+    gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name} won by resignation`;
+  }
+  else if (gameState.winner && gameState.pass > 1) { 
+    gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name} won by `;
+  } else {
+    gameHudEl.textContent = 'click to finalize game'
+  }
 }
 
 function renderTerritory() {
@@ -541,14 +559,27 @@ function renderPreview(hoverPoint) {
   })
 }
 
+function calculateWinner() {
+
+}
+
 function endGameSetTerritory() {
-  // boardState.forEach(pt => { 
-  //   pt.territory = pt.stone ? pt.stone : 'd'
-  // });
-  let emptyPoints = boardState.filter(pt => !pt.stone)
+  boardState.forEach(pt => { 
+    pt.territory = pt.stone ? pt.stone : 'd'
+  });
+  let emptyPoints = boardState.filter(pt => !pt.stone);
+  emptyPoints.forEach(pt => pt.joinGroup());
+  emptyPointSetTerritory(emptyPoints);
   boardState.filter(pt => {
     return pt.groupMembers.length < 6 && pt.stone
   }).forEach(pt => pt.territory = pt.stone * -1);
+}
+
+function emptyPointSetTerritory(emptyPoints) {
+  // let dame = emptyPoints.filter(pt => pt.checkNeighbors().some(nbr => nbr.territory === 1) 
+  //   && pt.checkNeighbors().some(nbr => nbr.territory === -1));
+  // dame.forEach(pt => pt.territory = 'd');
+  // emptyPoints.filter(pt => pt.territory = 0)
 }
 
 function endGame() {
@@ -573,17 +604,7 @@ function endGame() {
             // log as text
 }
 
-  // functions
-  // initialize game
-  // set handicap stones
-  // render
-  // render board
-  //render moves
-  //render preview
-  // render captures
-  // render player turn marker
   // game-end
-  // render dead group suggestion 
   // render territory counts
   // checkLegalMove
   // clear overlay

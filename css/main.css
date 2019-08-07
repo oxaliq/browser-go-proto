@@ -57,7 +57,11 @@ body {
 
 .menu-heading, content, #instructions, div[data-player-meta] label {
   font-family: 'Raleway', sans-serif;
-  font-weight: 300;
+}
+
+h1 {
+  font-size: 140%;
+  font-weight: 600;
 }
 
 h4 {
