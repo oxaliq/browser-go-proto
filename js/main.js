@@ -132,7 +132,7 @@ class Point {
   checkGroup = () => { // liberty is true when called by move false when called by check Capture
     let frns = this.checkNeighbors().filter(nbr => nbr.stone === gameState.turn);
     for (let frn in frns) {
-      if (frns[frn].getLiberties().filter(liberty => liberty !== this).length) return true;
+      if (frns[frn].groupMembers.some(stone => stone.getLiberties().filter(liberty => liberty !== this).length)) return true;
       return false;
       }
     }
@@ -147,21 +147,22 @@ class Point {
 
 
 /*----- cached element references -----*/
-const whiteCapsEl = document.getElementById("white-caps");
-const blackCapsEl = document.getElementById("black-caps");
+const whiteCapsEl = document.getElementById('white-caps');
+const blackCapsEl = document.getElementById('black-caps');
 const modalEl = document.querySelector('.modal');
 const komiSliderEl = document.querySelector('input[name="komi-slider"]');
 const handiSliderEl = document.querySelector('input[name="handicap-slider"]');
-const blackRankEl = document.getElementById("black-rank");
-const blackRankUpEl = document.getElementById("black-rank-up");
-const blackRankDownEl = document.getElementById("black-rank-down");
-const whiteRankEl = document.getElementById("white-rank");
-const whiteRankUpEl = document.getElementById("black-rank-up");
-const whiteRankDownEl = document.getElementById("black-rank-down");
-const blackNameInputEl = document.querySelector("input[name='black-name']")
-const whiteNameInputEl = document.querySelector("input[name='white-name']")
-const blackNameDisplayEl = document.querySelector("h4#black-player-name");
-const whiteNameDisplayEl = document.querySelector("h4#white-player-name");
+const blackRankEl = document.getElementById('black-rank');
+const blackRankUpEl = document.getElementById('black-rank-up');
+const blackRankDownEl = document.getElementById('black-rank-down');
+const whiteRankEl = document.getElementById('white-rank');
+const whiteRankUpEl = document.getElementById('black-rank-up');
+const whiteRankDownEl = document.getElementById('black-rank-down');
+const blackNameInputEl = document.querySelector('input[name="black-name"]')
+const whiteNameInputEl = document.querySelector('input[name="white-name"]')
+const blackNameDisplayEl = document.querySelector('h4#black-player-name');
+const whiteNameDisplayEl = document.querySelector('h4#white-player-name');
+const gameHudEl = document.querySelector('#game-hud p');
 
 // store modal #menu for displaying game info
 // store 
@@ -369,7 +370,6 @@ function getDate() {
   let d = new Date;
   return `${d.getFullYear()}-${String(d.getMonth()+1).charAt(-1)||0}${String(d.getMonth()+1).charAt(-0)}-${String(d.getDate()).charAt(-1)||0}${String(d.getDate()+1).charAt(-0)}`
 }
-"YYYY-MM-DD"
 function init() {
   gameState.winner = null;
   gameState.pass = null;
@@ -400,87 +400,87 @@ function init() {
   // testing board state for moves at [32]
   gameState.turn = 1;
 
-  // boardState[1].stone = 1;
-  // boardState[1].joinGroup();
-  // boardState[4].stone = 1;
-  // boardState[4].joinGroup();
-  // boardState[5].stone = 1;
-  // boardState[5].joinGroup();
-  // boardState[6].stone = 1;
-  // boardState[6].joinGroup();
-  // boardState[9].stone = 1;
-  // boardState[9].joinGroup();
-  // boardState[10].stone = -1;
-  // boardState[10].joinGroup();
-  // boardState[11].stone = 1;
-  // boardState[11].joinGroup();
-  // boardState[13].stone = -1;
-  // boardState[13].joinGroup();
-  // boardState[14].stone = -1;
-  // boardState[14].joinGroup();
-  // boardState[15].stone = -1;
-  // boardState[15].joinGroup();
-  // boardState[16].stone = 1;
-  // boardState[16].joinGroup();
-  // boardState[18].stone = 1;
-  // boardState[18].joinGroup();
-  // boardState[19].stone = -1;
-  // boardState[19].joinGroup();
-  // boardState[20].stone = 1;
-  // boardState[20].joinGroup();
-  // boardState[21].stone = 1;
-  // boardState[21].joinGroup();
-  // boardState[22].stone = 1;
-  // boardState[22].joinGroup();
-  // boardState[23].stone = -1;
-  // boardState[23].joinGroup();
-  // boardState[24].stone = 1;
-  // boardState[24].joinGroup();
-  // boardState[25].stone = 1;
-  // boardState[25].joinGroup();
-  // boardState[27].stone = 1;
-  // boardState[27].joinGroup();
-  // boardState[28].stone = -1;
-  // boardState[28].joinGroup();
-  // boardState[29].stone = -1;
-  // boardState[29].joinGroup();
-  // boardState[30].stone = -1;
-  // boardState[30].joinGroup();
-  // boardState[31].stone = -1;
-  // boardState[31].joinGroup();
-  // boardState[33].stone = -1;
-  // boardState[33].joinGroup();
-  // boardState[34].stone = 1;
-  // boardState[34].joinGroup();
-  // boardState[36].stone = 1;
-  // boardState[36].joinGroup();
-  // boardState[37].stone = -1;
-  // boardState[37].joinGroup();
-  // boardState[38].stone = 1;
-  // boardState[38].joinGroup();
-  // boardState[39].stone = 1;
-  // boardState[39].joinGroup();
-  // boardState[40].stone = 1;
-  // boardState[40].joinGroup();
-  // boardState[41].stone = -1;
-  // boardState[41].joinGroup();
-  // boardState[42].stone = 1;
-  // boardState[42].joinGroup();
-  // boardState[46].stone = 1;
-  // boardState[46].joinGroup();
-  // boardState[56].stone = 1;
-  // boardState[56].joinGroup();
-  // boardState[57].stone = 1;
-  // boardState[57].joinGroup();
-  // boardState[65].stone = -1;
-  // boardState[65].joinGroup();
-  // boardState[66].stone = -1;
-  // boardState[66].joinGroup();
-  // boardState[67].stone = 1;
-  // boardState[67].joinGroup();
-  // boardState[74].stone = -1;
-  // boardState[75].stone = -1;
-  // boardState[76].stone = 1;
+  boardState[1].stone = 1;
+  boardState[1].joinGroup();
+  boardState[4].stone = 1;
+  boardState[4].joinGroup();
+  boardState[5].stone = 1;
+  boardState[5].joinGroup();
+  boardState[6].stone = 1;
+  boardState[6].joinGroup();
+  boardState[9].stone = 1;
+  boardState[9].joinGroup();
+  boardState[10].stone = -1;
+  boardState[10].joinGroup();
+  boardState[11].stone = 1;
+  boardState[11].joinGroup();
+  boardState[13].stone = -1;
+  boardState[13].joinGroup();
+  boardState[14].stone = -1;
+  boardState[14].joinGroup();
+  boardState[15].stone = -1;
+  boardState[15].joinGroup();
+  boardState[16].stone = 1;
+  boardState[16].joinGroup();
+  boardState[18].stone = 1;
+  boardState[18].joinGroup();
+  boardState[19].stone = -1;
+  boardState[19].joinGroup();
+  boardState[20].stone = 1;
+  boardState[20].joinGroup();
+  boardState[21].stone = 1;
+  boardState[21].joinGroup();
+  boardState[22].stone = 1;
+  boardState[22].joinGroup();
+  boardState[23].stone = -1;
+  boardState[23].joinGroup();
+  boardState[24].stone = 1;
+  boardState[24].joinGroup();
+  boardState[25].stone = 1;
+  boardState[25].joinGroup();
+  boardState[27].stone = 1;
+  boardState[27].joinGroup();
+  boardState[28].stone = -1;
+  boardState[28].joinGroup();
+  boardState[29].stone = -1;
+  boardState[29].joinGroup();
+  boardState[30].stone = -1;
+  boardState[30].joinGroup();
+  boardState[31].stone = -1;
+  boardState[31].joinGroup();
+  boardState[33].stone = -1;
+  boardState[33].joinGroup();
+  boardState[34].stone = 1;
+  boardState[34].joinGroup();
+  boardState[36].stone = 1;
+  boardState[36].joinGroup();
+  boardState[37].stone = -1;
+  boardState[37].joinGroup();
+  boardState[38].stone = 1;
+  boardState[38].joinGroup();
+  boardState[39].stone = 1;
+  boardState[39].joinGroup();
+  boardState[40].stone = 1;
+  boardState[40].joinGroup();
+  boardState[41].stone = -1;
+  boardState[41].joinGroup();
+  boardState[42].stone = 1;
+  boardState[42].joinGroup();
+  boardState[46].stone = 1;
+  boardState[46].joinGroup();
+  boardState[56].stone = 1;
+  boardState[56].joinGroup();
+  boardState[57].stone = 1;
+  boardState[57].joinGroup();
+  boardState[65].stone = -1;
+  boardState[65].joinGroup();
+  boardState[66].stone = -1;
+  boardState[66].joinGroup();
+  boardState[67].stone = 1;
+  boardState[67].joinGroup();
+  boardState[74].stone = -1;
+  boardState[75].stone = -1;
+  boardState[76].stone = 1;
 
 
   clearCaptures();
@@ -488,7 +488,7 @@ function init() {
   render();
 };
     
-function render(hoverPoint) {
+function render() {
   if (gameState.winner || gameState.pass > 1) {
     renderTerritory();
     renderMessage();
@@ -499,7 +499,7 @@ function render(hoverPoint) {
 }
 
 function renderMessage() {
-  
+  if (gameState.winner) gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name} won by resignation`
 }
 
 function renderTerritory() {
@@ -542,9 +542,10 @@ function renderPreview(hoverPoint) {
 }
 
 function endGameSetTerritory() {
-  boardState.forEach(pt => { 
-    pt.territory = pt.stone ? pt.stone : 'd'
-  });
+  // boardState.forEach(pt => { 
+  //   pt.territory = pt.stone ? pt.stone : 'd'
+  // });
+  let emptyPoints = boardState.filter(pt => !pt.stone)
   boardState.filter(pt => {
     return pt.groupMembers.length < 6 && pt.stone
   }).forEach(pt => pt.territory = pt.stone * -1);

@@ -170,8 +170,8 @@ content {
   height: 9vmin;
 }
 
-.player-pos#white-pos {
-  
+#game-hud p {
+  font-size: 130%;
 }
 
 .player-pos#black-pos {
