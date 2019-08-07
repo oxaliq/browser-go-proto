@@ -72,7 +72,7 @@ class Point {
     this.legal;
     this.territory;
     this.capturing = [];
-    this.groupMembers = [];
+    this.groupMembers = [ this ];
     this.neighbors = {
       top: {},
       btm: {},
@@ -81,16 +81,16 @@ class Point {
     }
     this.neighbors.top = x > 1 ? [ x - 1, y ] : null;
     this.neighbors.btm = x < gameState.boardSize ? [ x + 1, y ] : null;
-    this.neighbors.rgt = y > 1 ? [ x, y - 1 ] : null;
-    this.neighbors.lft = y < gameState.boardSize ? [ x, y + 1 ] : null;
+    this.neighbors.rgt = y < gameState.boardSize ? [ x, y + 1 ] : null;
+    this.neighbors.lft = y > 1 ? [ x, y - 1 ] : null;
   } 
   checkNeighbors = () => {
     let neighborsArr = [];
-    for ( let neighbor in this.neighbors ) {
+    for (let neighbor in this.neighbors) {
       let nbr = this.neighbors[neighbor];
       // neighbor exists it's point is stored as { rPos, cPos}
       if ( nbr !== null ) {
-      neighborsArr.push(boardState.find( pt =>  pt.pos[0] === nbr[0] && pt.pos[1] === nbr[1] ))
+      neighborsArr.push(boardState.find(pt =>  pt.pos[0] === nbr[0] && pt.pos[1] === nbr[1]))
       }
     };
     // returns array of existing neighbors to calling function
@@ -102,15 +102,14 @@ class Point {
     // return all liberties;
   }
   joinGroup = () => {
+    this.groupMembers = this.groupMembers.filter(grp => grp.stone === this.stone);
     this.groupMembers.push(this);
     let frns = this.checkNeighbors().filter(nbr => nbr.stone === this.stone);
     for (let frn of frns) {
       this.groupMembers.push(frn);
     }
-    // this.groupMembers = Array.from(new Set(this.groupMembers));
-    if (!this.groupMembers.length) return;
+    this.groupMembers = Array.from(new Set(this.groupMembers));
     for (let grpMem in this.groupMembers) {
-      debugger;
       this.groupMembers = Array.from(new Set(this.groupMembers.concat(this.groupMembers[grpMem].groupMembers)));
     }
     for (let grpMem in this.groupMembers) {
@@ -132,8 +131,9 @@ class Point {
   checkGroup = () => { // liberty is true when called by move false when called by check Capture
     let frns = this.checkNeighbors().filter(nbr => nbr.stone === gameState.turn);
     for (let frn in frns) {
-      if (frns[frn].groupMembers.some(stone => stone.getLiberties().filter(liberty => liberty !== this).length)) return true;
-      return false;
+      console.log(frns[frn]);
+      if (frns[frn].groupMembers.find(stone => stone.getLiberties().find(liberty => liberty !== this))) return true;
+      continue;
       }
     }
 }
@@ -400,87 +400,87 @@ function init() {
   // testing board state for moves at [32]
   gameState.turn = 1;
 
-  boardState[1].stone = 1;
-  boardState[1].joinGroup();
-  boardState[4].stone = 1;
-  boardState[4].joinGroup();
-  boardState[5].stone = 1;
-  boardState[5].joinGroup();
-  boardState[6].stone = 1;
-  boardState[6].joinGroup();
-  boardState[9].stone = 1;
-  boardState[9].joinGroup();
-  boardState[10].stone = -1;
-  boardState[10].joinGroup();
-  boardState[11].stone = 1;
-  boardState[11].joinGroup();
-  boardState[13].stone = -1;
-  boardState[13].joinGroup();
-  boardState[14].stone = -1;
-  boardState[14].joinGroup();
-  boardState[15].stone = -1;
-  boardState[15].joinGroup();
-  boardState[16].stone = 1;
-  boardState[16].joinGroup();
-  boardState[18].stone = 1;
-  boardState[18].joinGroup();
-  boardState[19].stone = -1;
-  boardState[19].joinGroup();
-  boardState[20].stone = 1;
-  boardState[20].joinGroup();
-  boardState[21].stone = 1;
-  boardState[21].joinGroup();
-  boardState[22].stone = 1;
-  boardState[22].joinGroup();
-  boardState[23].stone = -1;
-  boardState[23].joinGroup();
-  boardState[24].stone = 1;
-  boardState[24].joinGroup();
-  boardState[25].stone = 1;
-  boardState[25].joinGroup();
-  boardState[27].stone = 1;
-  boardState[27].joinGroup();
-  boardState[28].stone = -1;
-  boardState[28].joinGroup();
-  boardState[29].stone = -1;
-  boardState[29].joinGroup();
-  boardState[30].stone = -1;
-  boardState[30].joinGroup();
-  boardState[31].stone = -1;
-  boardState[31].joinGroup();
-  boardState[33].stone = -1;
-  boardState[33].joinGroup();
-  boardState[34].stone = 1;
-  boardState[34].joinGroup();
-  boardState[36].stone = 1;
-  boardState[36].joinGroup();
-  boardState[37].stone = -1;
-  boardState[37].joinGroup();
-  boardState[38].stone = 1;
-  boardState[38].joinGroup();
-  boardState[39].stone = 1;
-  boardState[39].joinGroup();
-  boardState[40].stone = 1;
-  boardState[40].joinGroup();
-  boardState[41].stone = -1;
-  boardState[41].joinGroup();
-  boardState[42].stone = 1;
-  boardState[42].joinGroup();
-  boardState[46].stone = 1;
-  boardState[46].joinGroup();
-  boardState[56].stone = 1;
-  boardState[56].joinGroup();
-  boardState[57].stone = 1;
-  boardState[57].joinGroup();
-  boardState[65].stone = -1;
-  boardState[65].joinGroup();
-  boardState[66].stone = -1;
-  boardState[66].joinGroup();
-  boardState[67].stone = 1;
-  boardState[67].joinGroup();
-  boardState[74].stone = -1;
-  boardState[75].stone = -1;
-  boardState[76].stone = 1;
+  // boardState[1].stone = 1;
+  // boardState[1].joinGroup();
+  // boardState[4].stone = 1;
+  // boardState[4].joinGroup();
+  // boardState[5].stone = 1;
+  // boardState[5].joinGroup();
+  // boardState[6].stone = 1;
+  // boardState[6].joinGroup();
+  // boardState[9].stone = 1;
+  // boardState[9].joinGroup();
+  // boardState[10].stone = -1;
+  // boardState[10].joinGroup();
+  // boardState[11].stone = 1;
+  // boardState[11].joinGroup();
+  // boardState[13].stone = -1;
+  // boardState[13].joinGroup();
+  // boardState[14].stone = -1;
+  // boardState[14].joinGroup();
+  // boardState[15].stone = -1;
+  // boardState[15].joinGroup();
+  // boardState[16].stone = 1;
+  // boardState[16].joinGroup();
+  // boardState[18].stone = 1;
+  // boardState[18].joinGroup();
+  // boardState[19].stone = -1;
+  // boardState[19].joinGroup();
+  // boardState[20].stone = 1;
+  // boardState[20].joinGroup();
+  // boardState[21].stone = 1;
+  // boardState[21].joinGroup();
+  // boardState[22].stone = 1;
+  // boardState[22].joinGroup();
+  // boardState[23].stone = -1;
+  // boardState[23].joinGroup();
+  // boardState[24].stone = 1;
+  // boardState[24].joinGroup();
+  // boardState[25].stone = 1;
+  // boardState[25].joinGroup();
+  // boardState[27].stone = 1;
+  // boardState[27].joinGroup();
+  // boardState[28].stone = -1;
+  // boardState[28].joinGroup();
+  // boardState[29].stone = -1;
+  // boardState[29].joinGroup();
+  // boardState[30].stone = -1;
+  // boardState[30].joinGroup();
+  // boardState[31].stone = -1;
+  // boardState[31].joinGroup();
+  // boardState[33].stone = -1;
+  // boardState[33].joinGroup();
+  // boardState[34].stone = 1;
+  // boardState[34].joinGroup();
+  // boardState[36].stone = 1;
+  // boardState[36].joinGroup();
+  // boardState[37].stone = -1;
+  // boardState[37].joinGroup();
+  // boardState[38].stone = 1;
+  // boardState[38].joinGroup();
+  // boardState[39].stone = 1;
+  // boardState[39].joinGroup();
+  // boardState[40].stone = 1;
+  // boardState[40].joinGroup();
+  // boardState[41].stone = -1;
+  // boardState[41].joinGroup();
+  // boardState[42].stone = 1;
+  // boardState[42].joinGroup();
+  // boardState[46].stone = 1;
+  // boardState[46].joinGroup();
+  // boardState[56].stone = 1;
+  // boardState[56].joinGroup();
+  // boardState[57].stone = 1;
+  // boardState[57].joinGroup();
+  // boardState[65].stone = -1;
+  // boardState[65].joinGroup();
+  // boardState[66].stone = -1;
+  // boardState[66].joinGroup();
+  // boardState[67].stone = 1;
+  // boardState[67].joinGroup();
+  // boardState[74].stone = -1;
+  // boardState[75].stone = -1;
+  // boardState[76].stone = 1;
 
 
   clearCaptures();
