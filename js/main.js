@@ -189,7 +189,6 @@ class Point {
       }
     }
     cycleTerritory = () => {
-      console.log(this);
       if (this.stone) {
         this.groupMembers.forEach(pt => pt.territory = pt.territory * -1);
       } else {
@@ -345,10 +344,7 @@ function clickMenu() {
 
 function startMenu() {
   modalEl.style.visibility = 'visible';
-  changeUpdateKomi();
-  changeUpdateHandicap();
-  clickUpdatePlayerMeta();
-  
+  renderMenu;
 }
 
 function clickCloseMenu(evt) {
@@ -491,7 +487,7 @@ function getDate() {
 function init() {
   gameState.gameMeta.date = getDate();
   gameState.komi = 5.5; // get komi from player input
-  // startMenu();
+  startMenu();
   gameState.winner = null;
   gameState.pass = null;
   // gameState.handicap = ; // get handicap from player input
@@ -587,14 +583,12 @@ function calculateWinner() {
     }
     return acc;
   }, 0);
-  console.log(whiteTerritory);
   let blackTerritory = boardState.reduce((acc, pt) => {
     if (pt.territory === 1 && pt.stone !== 1) {
       return acc + (pt.stone === 0 ? 1 : 2);
     }
     return acc;
   }, 0);
-  console.log(blackTerritory);
   gameState.playerState.wScore =
     gameState.playerState.wCaptures
     + (gameState.komi < 0 ? gameState.komi * -1 : 0)
@@ -609,28 +603,36 @@ function calculateWinner() {
 }
 
 function endGameSetTerritory() {
-  // boardState.forEach(pt => { 
-  //   pt.territory = pt.stone ? pt.stone : 'd'
-  // });
   let emptyPoints = boardState.filter(pt => !pt.stone);
   emptyPoints.forEach(pt => pt.joinGroup());
   emptyPointSetTerritory(emptyPoints);
-  // boardState.filter(pt => {
-  //   return pt.groupMembers.length < 6 && pt.stone
-  // }).forEach(pt => pt.territory = pt.stone * -1);
+  groupsMarkDeadLive();
+}
+
+function groupsMarkDeadLive() {
+  boardState.filter(pt => (!pt.territory ))
+    .forEach(pt => {
+      debugger;
+      if (pt.groupMembers.some(grpMem => {
+        return grpMem.checkNeighbors().some(nbr => nbr.territory === pt.stone && nbr.stone === 0)
+      })) {
+        pt.groupMembers.forEach(grpMem => grpMem.territory = pt.stone);
+      }
+    });
+  boardState.filter(pt => (!pt.territory)).forEach(pt => {
+    pt.territory = pt.stone * -1;
+  });  
 }
 
 function emptyPointSetTerritory(emptyPoints) {
   emptyPoints.filter(pt => !pt.territory && pt.checkNeighbors().filter(nbr => nbr.stone !== 0))
     .forEach(pt => {
-      console.log(pt);
-      let b = pt.groupMembers.reduce((acc, rdcPt) => {
-        let bNbr = rdcPt.checkNeighbors().filter(nbr => nbr.stone === 1).length;
+      let b = pt.groupMembers.reduce((acc, grpMem) => {
+        let bNbr = grpMem.checkNeighbors().filter(nbr => nbr.stone === 1).length;
         return acc + bNbr;
       }, 0);
-      let w = pt.groupMembers.reduce((acc, rdcPt) => {
-        debugger;
-        let wNbr = rdcPt.checkNeighbors().filter(nbr => nbr.stone === -1).length;
+      let w = pt.groupMembers.reduce((acc, grpMem) => {
+        let wNbr = grpMem.checkNeighbors().filter(nbr => nbr.stone === -1).length;
         return acc + wNbr;
       }, 0);
       pt.groupMembers.forEach(grp => {
