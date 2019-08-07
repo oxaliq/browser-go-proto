@@ -12,7 +12,6 @@ const DOTS_DATA = {
   '0': 'none',
   '1': 'black',
   'd': 'dame',
-  's': 'seki'
 }
 
 const RANKS = [
@@ -49,13 +48,15 @@ const HANDI_REC = {
 const gameState = {
   winner: null,
   turn: 1, // turn logic depends on handicap stones
-  pass: null,
+  pass: null, // -1 represents state in which resignation has been submitted, not confirmed
   komi: null, // komi depends on handicap stones + player rank
   handicap: null,
   boardSize: 9,
   playerState: {
     bCaptures: null,
-    wCaptures: null
+    wCaptures: null,
+    bScore: null,
+    wScore: null
   },
   gameMeta: { // declared at game start and not editable after
     date: null // contains metadata 
@@ -188,8 +189,12 @@ class Point {
       }
     }
     cycleTerritory = () => {
-      this.groupMembers.forEach(pt => {
-        switch (pt.territory) {
+      console.log(this);
+      if (this.stone) {
+        this.groupMembers.forEach(pt => pt.territory = pt.territory * -1);
+      } else {
+        this.groupMembers.forEach(pt => {
+          switch (pt.territory) {
           case 1:
             pt.territory = -1;
             break;
@@ -199,8 +204,9 @@ class Point {
           case 'd':
             pt.territory = 1;
             break;
-        }
-      })
+          }
+        });
+      }
     }
 }
 // could use this Array to iterate through and create 
@@ -235,15 +241,8 @@ const gameHudEl = document.querySelector('#game-hud p');
 
 
 /*----- event listeners -----*/
-// input listeners for player names, ranks, rank certainty (editable during game)
-//input lister for handicap + komi (only editable pre-game)
-// ::hover-over on board to preview move (with legal move logic)
 document.getElementById('board').addEventListener('mousemove', hoverPreview);
-// click on board to play move
 document.getElementById('board').addEventListener('click', clickBoard);
-// ::hover-over on either bowl for pass, one-level undo options (CSS implementation)
-// click on menu items 
-// click on kifu to display game menu
 document.getElementById('white-bowl').addEventListener('click',clickPass);
 document.getElementById('black-bowl').addEventListener('click',clickPass);
 document.getElementById('kifu').addEventListener('click', clickMenu);
@@ -255,7 +254,7 @@ handiSliderEl.addEventListener('change', changeUpdateHandicap);
 document.getElementById('player-meta').addEventListener('click', clickUpdatePlayerMeta);
 document.getElementById('player-meta').addEventListener('change', clickUpdatePlayerMeta);
 document.querySelector('input[name="komi-suggest"]').addEventListener('click', clickKomiSuggestion);
-gameHudEl.addEventListener('click', clickSubmitScore);
+gameHudEl.addEventListener('click', clickGameHud);
 
 
 /*----- functions -----*/
@@ -303,12 +302,12 @@ function clickKomiSuggestion() {
   renderMenu();
 }
 
-function clickSubmitScore() {
+function clickGameHud() {
   if (gameState.pass > 1 && !gameState.winner) calculateWinner();
+  if (gameState.pass < 0) confirmResign();
 }
 
 function clickSubmitStart() {
-  
   gameState.playerMeta.b.name = blackNameInputEl.value;
   gameState.playerMeta.w.name = whiteNameInputEl.value;
   initGame();
@@ -344,6 +343,14 @@ function clickMenu() {
   clickUpdatePlayerMeta();
 }
 
+function startMenu() {
+  modalEl.style.visibility = 'visible';
+  changeUpdateKomi();
+  changeUpdateHandicap();
+  clickUpdatePlayerMeta();
+  
+}
+
 function clickCloseMenu(evt) {
   evt.stopPropagation();
   if (evt.target.className === "modal") modalEl.style.visibility = 'hidden';
@@ -354,13 +361,18 @@ function clickResign(evt) {
 }
 
 function playerResign() {
-  // display confirmation message
-  if (!confirm('Do you want to resign?')) return;
+  // display confirmation message\
+  gameState.pass = -1;
+  gameHudEl.style.visibility = "visible";
+  gameHudEl.textContent = "Do you want to resign?";
+}
 
+function confirmResign() {
   gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: resign`);
   gameState.winner = STONES_DATA[gameState.turn * -1];
   endGame();
 }
+
 
 function hoverPreview(evt) {
   evt.stopPropagation();
@@ -477,15 +489,16 @@ function getDate() {
   return `${d.getFullYear()}-${String(d.getMonth()+1).charAt(-1)||0}${String(d.getMonth()+1).charAt(-0)}-${String(d.getDate()).charAt(-1)||0}${String(d.getDate()+1).charAt(-0)}`
 }
 function init() {
+  gameState.gameMeta.date = getDate();
+  gameState.komi = 5.5; // get komi from player input
+  // startMenu();
   gameState.winner = null;
   gameState.pass = null;
-  // gameState.komi = ; // get komi from player input
   // gameState.handicap = ; // get handicap from player input
   gameState.turn = gameState.handicap ? -1 : 1;
   gameState.boardSize = 9;
   gameState.playerState.bCaptures = 0;
   gameState.playerState.wCaptures = 0;
-  gameState.gameMeta.date = getDate();
   // get any future meta from player input
   // gameState.playerMeta.b // get from player input
   // gameState.playerMeta.w // get from player input
@@ -511,12 +524,19 @@ function render() {
 
 function renderMessage() {
   if (gameState.winner && gameState.pass < 2) {
+    gameHudEl.style.visibility = 'visible';
+    gameHudEl.style.cursor = 'default';
     gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name} won by resignation`;
   }
   else if (gameState.winner && gameState.pass > 1) { 
-    gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name} won by `;
-  } else {
+    gameHudEl.style.visibility = 'visible';
+    gameHudEl.style.cursor = 'default';
+    gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name} won by ${Math.abs(gameState.playerState.wScore - gameState.playerState.bScore)}`;
+  } else if (gameState.pass > 1) {
+    gameHudEl.style.visibility = 'visible';
     gameHudEl.textContent = 'click to finalize game'
+  } else {
+    gameHudEl.style.visibility = 'hidden';
   }
 }
 
@@ -560,31 +580,69 @@ function renderPreview(hoverPoint) {
 }
 
 function calculateWinner() {
-
+  // debugger;
+  let whiteTerritory = boardState.reduce((acc, pt) => {
+    if (pt.territory === -1 && pt.stone !== -1) {
+      return acc = acc + (pt.stone === 0 ? 1 : 2);
+    }
+    return acc;
+  }, 0);
+  console.log(whiteTerritory);
+  let blackTerritory = boardState.reduce((acc, pt) => {
+    if (pt.territory === 1 && pt.stone !== 1) {
+      return acc + (pt.stone === 0 ? 1 : 2);
+    }
+    return acc;
+  }, 0);
+  console.log(blackTerritory);
+  gameState.playerState.wScore =
+    gameState.playerState.wCaptures
+    + (gameState.komi < 0 ? gameState.komi * -1 : 0)
+    + whiteTerritory;
+  gameState.playerState.bScore =
+    gameState.playerState.bCaptures
+    + (gameState.komi > 0 ? gameState.komi : 0)
+    + blackTerritory;
+  gameState.winner = gameState.playerState.wScore > gameState.playerState.bScore ? -1 : 1;
+  gameState.gameRecord.push(`${STONES_DATA[gameState.winner]}: +${Math.abs(gameState.playerState.wScore - gameState.playerState.bScore)}`)
+  render();
 }
 
 function endGameSetTerritory() {
-  boardState.forEach(pt => { 
-    pt.territory = pt.stone ? pt.stone : 'd'
-  });
+  // boardState.forEach(pt => { 
+  //   pt.territory = pt.stone ? pt.stone : 'd'
+  // });
   let emptyPoints = boardState.filter(pt => !pt.stone);
   emptyPoints.forEach(pt => pt.joinGroup());
   emptyPointSetTerritory(emptyPoints);
-  boardState.filter(pt => {
-    return pt.groupMembers.length < 6 && pt.stone
-  }).forEach(pt => pt.territory = pt.stone * -1);
+  // boardState.filter(pt => {
+  //   return pt.groupMembers.length < 6 && pt.stone
+  // }).forEach(pt => pt.territory = pt.stone * -1);
 }
 
 function emptyPointSetTerritory(emptyPoints) {
-  // let dame = emptyPoints.filter(pt => pt.checkNeighbors().some(nbr => nbr.territory === 1) 
-  //   && pt.checkNeighbors().some(nbr => nbr.territory === -1));
-  // dame.forEach(pt => pt.territory = 'd');
-  // emptyPoints.filter(pt => pt.territory = 0)
+  emptyPoints.filter(pt => !pt.territory && pt.checkNeighbors().filter(nbr => nbr.stone !== 0))
+    .forEach(pt => {
+      console.log(pt);
+      let b = pt.groupMembers.reduce((acc, rdcPt) => {
+        let bNbr = rdcPt.checkNeighbors().filter(nbr => nbr.stone === 1).length;
+        return acc + bNbr;
+      }, 0);
+      let w = pt.groupMembers.reduce((acc, rdcPt) => {
+        debugger;
+        let wNbr = rdcPt.checkNeighbors().filter(nbr => nbr.stone === -1).length;
+        return acc + wNbr;
+      }, 0);
+      pt.groupMembers.forEach(grp => {
+        if (Math.abs(b - w) < 4) grp.territory = 'd'
+        else grp.territory = b > w ? 1 : -1;
+      })
+    });
 }
 
 function endGame() {
-  if (!gameState.winner)
-  endGameSetTerritory()
+  if (!gameState.winner) endGameSetTerritory()
+
   
   // join all remaining groups
   // check remaining groups life
@@ -593,15 +651,15 @@ function endGame() {
             //  compare spaces to rotations of deadShapes[...]
             // 'd' if empty spaces 
 
-  render();
-        // return dead group suggestion
-        // users can flip status of any dead group overlay( 1, -1 ) 
-        // confirm state
+            // return dead group suggestion
+            // users can flip status of any dead group overlay( 1, -1 ) 
+            // confirm state
             // calculate score = points in overlay for each player + captures
             // render final board state with dead groups removed
-        // log game record
+            // log game record
             // stringify according to .sgf format
             // log as text
+  render();
 }
 
   // game-end

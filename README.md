@@ -15,7 +15,8 @@ a working game of go for a 9x9 board that
 - [x] ends game upon 2 consecutive passes
 - [ ] calculates estimated score at game end
 - [ ] compares board groups to most common dead shapes
-- [ ] allows users to override dead group estimates and submit finalized score to game record
+- [x] allows users to override dead group estimates
+- [ ] allows users to submit finalized score to game record
 - [ ] displays game record as string
 
 stretch goals

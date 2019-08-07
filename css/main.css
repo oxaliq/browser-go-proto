@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=La+Belle+Aurore|Raleway:300|Raleway:600');
 
+html {
+  font-size: 12px;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -39,7 +43,7 @@ body {
     "player"
     "record"
     "submit";
-  font: 14px 'La Belle Aurore', cursive;
+  font-family: 'La Belle Aurore', cursive;
   min-height: 0;
 }
 
@@ -83,7 +87,6 @@ h4 {
 
 #player-meta input[type="button"] {
   margin: .25em;
-  height: 100%;
 }
 
 div[data-player-meta] {
@@ -176,6 +179,14 @@ content {
 
 #game-hud p {
   font-size: 130%;
+  width: 50%;
+  order: 0;
+  width: 10vh;
+  background-color: rgba(0,0,0,0.3);
+  padding: 1vh;
+  color: #fff;
+  cursor: pointer;
+  visibility: hidden;
 }
 
 .player-pos#black-pos {
@@ -222,7 +233,7 @@ content {
 }
 
 .bowl[data-turn] {
-  box-shadow: 0 0 3vh 3vh rgb(31, 255, 2);
+  box-shadow: 0 0 3vh 3vh rgb(255, 175, 2);
 }
 
 .caps-space {
@@ -401,20 +412,27 @@ td .dot .seki {
 }
 
 @media only screen and (min-width: 560px) {
+
   #player-meta {
     flex-direction: row;
   }
+
   div[data-player-meta] {
     width: 50%;
   }
+
   #menu {
     grid-template-columns: 60vw;
     grid-template-rows: auto auto 60vw auto;
-    font-size: 14px;
   }
 }
 
 @media only screen and (min-width: 500px) {
+  
+  html {
+    font-size: 14px;
+  }
+
   .player-pos {
     height: 14vh;
   }
