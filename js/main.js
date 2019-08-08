@@ -470,7 +470,7 @@ function resolveCaptures(point) {
 }
 
 function editTerritory(evt) {
-  let placement = [ parseInt(evt.target.closest('td').id.split('-')[0]), parseInt(evt.target.closest('td').id[2]) ];
+  let placement = [ parseInt(evt.target.closest('td').id.split('-')[0]), parseInt(evt.target.closest('td').id.split('-')[1]) ];
   let point = findPointFromIdx(placement);
   point.cycleTerritory();
   renderGame();
@@ -580,8 +580,21 @@ function renderGame() {
 function renderBoardInit() {
   clearCurrentBoard();
   renderBoardTableRows();
+  renderHoshi();
   renderBoardTableStyle();
 }
+
+function renderHoshi() {
+  let hoshi = HANDI_PLACE[gameState.boardSize].slice(-1);
+  console.log(hoshi);
+  hoshi.forEach(star => {
+    console.log(star);
+    let starPt = findPointFromIdx(star);
+    console.log(starPt);
+    // .getElementsByClassName['dot'].style.className += ' hoshi' });
+})
+}
+// HANDI_PLACE[gameState.boardSize].slice(-1) [0] [0][0] === boardState[20].pos[0]
 
 function clearCurrentBoard() {
   boardEl.innerHTML = '';
