@@ -267,14 +267,14 @@ init();
 
 let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
 
-function changeUpdateKomi() {
+function changeUpdateKomi(evt) {
   evt.stopPropagation();
   komiDisplayEl.textContent = komiSliderEl.value;
   gameState.komi = komiSliderEl.value;
   renderMenu();
 }
 
-function changeUpdateHandicap() {
+function changeUpdateHandicap(evt) {
   evt.stopPropagation();
   handiDisplayEl.textContent = handiSliderEl.value  !== 1 ? handiSliderEl.value : 0;
   gameState.handicap = handiSliderEl.value !== 1 ? handiSliderEl.value : 0;
@@ -307,7 +307,7 @@ function clickUpdatePlayerMeta(evt) {
 
 function clickBoardSize(evt) {
   evt.stopPropagation();
-  gameState.boardSize = boardSizeEl.value;
+  gameState.boardSize = document.querySelector('#board-size-radio [checked]').value;
   renderMenu();
 }
 
@@ -617,7 +617,6 @@ function renderPreview(hoverPoint) {
 }
 
 function calculateWinner() {
-  // debugger;
   let whiteTerritory = boardState.reduce((acc, pt) => {
     if (pt.territory === -1 && pt.stone !== -1) {
       return acc = acc + (pt.stone === 0 ? 1 : 2);
@@ -653,7 +652,6 @@ function endGameSetTerritory() {
 function groupsMarkDeadLive() {
   boardState.filter(pt => (!pt.territory ))
     .forEach(pt => {
-      debugger;
       if (pt.groupMembers.some(grpMem => {
         return grpMem.checkNeighbors().some(nbr => nbr.territory === pt.stone && nbr.stone === 0)
       })) {

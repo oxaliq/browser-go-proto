@@ -283,12 +283,9 @@ content {
 #board-space {
   grid-area: board;
   margin: 0 auto;
-  /* grid-area: board-space; */
   display: flex;
   flex-direction: column;
   background-color: rgba(234, 178, 78, 1);
-  /* width: 90vmin; */
-  /* height: 90vmin; */
   padding: 1vmin;
   z-index: 1;
   box-shadow: -2vmin 4vmin 3vmin rgba(145, 92, 23, 0.5);
@@ -300,8 +297,6 @@ content {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  height: 81vmin;
-  width: 81min;
   margin: auto;
 }
 
