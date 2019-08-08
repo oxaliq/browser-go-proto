@@ -574,8 +574,12 @@ function renderGame() {
     renderTerritory();
     renderMessage();
   }
-  blackNameDisplayEl.textContent = gameState.playerMeta.b.name;
-  whiteNameDisplayEl.textContent = gameState.playerMeta.w.name;
+  blackNameDisplayEl.textContent = 
+  `${gameState.playerMeta.b.name},
+  ${gameState.playerMeta.b.rank}`;
+  whiteNameDisplayEl.textContent = 
+  `${gameState.playerMeta.w.name},
+  ${gameState.playerMeta.w.rank}`;
   gameState.gameRecord.length? renderTurn() : renderFirstTurn();
   renderBoardState();
   renderCaps();
@@ -653,7 +657,7 @@ function renderMessage() {
     gameHudEl.textContent = `${gameState.playerMeta[gameState.winner === 1 ? 'b' : 'w'].name || STONES_DATA[gameState.winner]} won by ${Math.abs(gameState.playerState.wScore - gameState.playerState.bScore)}`;
   } else if (gameState.pass > 1) {
     gameHudEl.style.visibility = 'visible';
-    gameHudEl.textContent = 'click to finalize game'
+    gameHudEl.textContent = 'finalize game'
   } else {
     gameHudEl.style.visibility = 'hidden';
   }

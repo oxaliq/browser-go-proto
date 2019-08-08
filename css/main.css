@@ -48,6 +48,7 @@ body {
     "submit";
   font-family: 'La Belle Aurore', cursive;
   min-height: 0;
+  z-index: 3;
 }
 
 #menu .menu-subblock {
@@ -267,7 +268,7 @@ content {
   color: rgb(255,240,230);
   background-color: rgba(0,0,0,0.7);
   padding: 0.25em;
-  z-index: 2;
+  z-index: 1;
 }
 
 #board-container {
