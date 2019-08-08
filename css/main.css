@@ -73,7 +73,7 @@ h1 {
 
 h4 {
   font-weight: 600;
-  margin: 1em .25em 1em .25em;
+  margin: .25em;
   font-size: 110%;
 }
 
@@ -168,7 +168,7 @@ content {
 
 #game-hud p {
   font-size: 130%;
-  width: 50%;
+  width: 100%;
   order: 0;
   width: 10vh;
   background-color: rgba(0,0,0,0.3);
@@ -232,12 +232,12 @@ content {
 
 .caps-space {
   color: #FFF;
-  margin: 3vh;
+  margin: 1vh;
   height: 10vh;
   width: 10vh;
   border-radius: 50%;
-  background-color: rgb(116, 48, 17);
-  box-shadow: -0.5vmin 1vmin 3vmin rgba(83, 53, 35, 0.61);
+  background: radial-gradient(farthest-side at 49% 52%, rgb(150, 75, 50) 0%, rgb(116,48,17) 35%, rgb(116,48,17) 64%, rgb(80, 20, 0) 65%, rgb(175, 140, 95) 70%, rgb(120, 50, 40) 80%, rgb(80, 20, 0) 95%, rgb(175, 140, 95) 100%);
+  box-shadow: -0.5vmin 1vmin 1vmin rgba(83, 53, 35, 0.61);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -264,7 +264,10 @@ content {
 
 .name-space h4 {
   font-size: 120%;
-  color: rgb(255,240,230)
+  color: rgb(255,240,230);
+  background-color: rgba(0,0,0,0.7);
+  padding: 0.25em;
+  z-index: 2;
 }
 
 #board-container {
@@ -273,7 +276,13 @@ content {
   grid-template-areas: 100%;
   grid-template-columns: 100%;
   grid-template-areas:
-    "board";
+  "board";
+}
+
+#board-space tbody {
+  background: radial-gradient(farthest-corner at 55% 40%, rgba(244, 230, 120, 0.75) 0%, rgba(234, 178, 78, 0.5) 65%, rgba(200, 160, 90, 0.45) 90%, rgba(200, 140, 90, 0.45) 100%);
+  background-size: cover;
+  padding: 1vmin;
 }
 
 #board-space {
@@ -281,8 +290,7 @@ content {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(farthest-corner at 55% 40%, rgb(244, 230, 120) 0%, rgb(234, 178, 78) 65%, rgb(200,160,90) 90%, rgb(200, 140, 90) 100%);
-  padding: 1vmin;
+  background-image: url(../images/board.png);
   z-index: 1;
   box-shadow: -2vmin 4vmin 3vmin rgba(145, 92, 23, 0.5);
   flex: 1;
@@ -352,7 +360,7 @@ content {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }
 
-.stone.hoshi { /* to be added later */
+.stone.hoshi {
   background: radial-gradient(circle farthest-corner at center, #000 0%, #000 14%, rgba(0,0,0,0) 15%);
   z-index: 3;
 }
@@ -418,6 +426,8 @@ td .dot[data-dot="dame"] {
 
 }
 
+/* Responsive Design */
+
 @media only screen and (min-width: 500px) {
   
   html {
@@ -442,14 +452,29 @@ td .dot[data-dot="dame"] {
 @media only screen and (min-width: 570px) {
   
   #board-space .board-9x9 td {
-    height: 8vh;
-    width: 8vh;
+    height: 7.5vh;
+    width: 7.5vh;
   }
   
   #board-space .board-13x13 td {
-    height: 5.5vh;
-    width: 5.5vh;
-  }  
+    height: 5vh;
+    width: 5vh;
+  }
+
+  .bowl {
+    order: -1;
+    margin: 3vh;
+    height: 10vh;
+    width: 10vh;
+  }
+  
+  .caps-space {
+    color: #FFF;
+    margin: 2vh;
+    height: 7vh;
+    width: 7vh;
+  }
+
   
 }
 

@@ -234,7 +234,8 @@ const boardSizeEl = document.getElementById('board-size-radio');
 const komiDisplayEl = document.getElementById('komi');
 const handiDisplayEl = document.getElementById('handicap');
 const boardEl = document.querySelector('#board tbody');
-const gameStartEl = document.querySelector('input[name="game-start"]')
+const gameStartEl = document.querySelector('input[name="game-start"]');
+const komiSuggestEl = document.querySelector('input[name="komi-suggest"]');
 const boardSizeRadioEls = [
   document.querySelectorAll('input[name="board-size"')[0],
   document.querySelectorAll('input[name="board-size"')[1],
@@ -254,7 +255,7 @@ komiSliderEl.addEventListener('change', changeUpdateKomi);
 handiSliderEl.addEventListener('change', changeUpdateHandicap);
 document.getElementById('player-meta').addEventListener('click', clickUpdatePlayerMeta);
 document.getElementById('player-meta').addEventListener('change', clickUpdatePlayerMeta);
-document.querySelector('input[name="komi-suggest"]').addEventListener('click', clickKomiSuggestion);
+komiSuggestEl.addEventListener('click', clickKomiSuggestion);
 gameHudEl.addEventListener('click', clickGameHud);
 boardSizeEl.addEventListener('click', clickBoardSize);
 gameStartEl.addEventListener('click', clickSubmitStart);
@@ -314,6 +315,12 @@ function clickBoardSize(evt) {
 function clickKomiSuggestion(evt) {
   evt.preventDefault();
   evt.stopPropagation();
+  if (gameState.gameMeta.start) {
+    gameState.playerMeta.b.name = blackNameInputEl.value || 'black';
+    gameState.playerMeta.w.name = whiteNameInputEl.value || 'white';
+    modalEl.style.visibility = 'hidden';
+    return 
+  }
   let sugg = KOMI_REC[gameState.boardSize][Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
   let handi = HANDI_REC[gameState.boardSize][Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
   gameState.komi = sugg;
@@ -330,8 +337,8 @@ function clickSubmitStart(evt) {
   if (gameState.gameMeta.start) return init();
   evt.preventDefault();
   evt.stopPropagation();
-  gameState.playerMeta.b.name = blackNameInputEl.value;
-  gameState.playerMeta.w.name = whiteNameInputEl.value;
+  gameState.playerMeta.b.name = blackNameInputEl.value || 'black';
+  gameState.playerMeta.w.name = whiteNameInputEl.value || 'white';
   modalEl.style.visibility = 'hidden';
   initGame();
 }
@@ -355,7 +362,10 @@ function renderBoardSizeRadio() {
 
 function renderMenu() {
   dateEl.textContent = gameState.gameMeta.date;
-  if (gameState.gameMeta.start) gameStartEl.value = "New Game";
+  if (gameState.gameMeta.start) {
+    gameStartEl.value = "New Game";
+    komiSuggestEl.value = "Close Menu";
+  }
   renderKomi()
   renderHandiSlider();
   renderBoardSizeRadio();
@@ -390,7 +400,7 @@ function startMenu() {
 
 function clickCloseMenu(evt) {
   evt.stopPropagation();
-  if (evt.target.className === "modal" && gameState.gameRecord.length) modalEl.style.visibility = 'hidden';
+  if (evt.target.className === "modal" && gameState.gameMeta.start) modalEl.style.visibility = 'hidden';
 }
 
 function clickResign(evt) {
