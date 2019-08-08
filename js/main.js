@@ -91,25 +91,25 @@ const HANDI_PLACE = {
   ],
   '13' : [
     0, 0,
-    [ [ 4, 9 ], [ 9, 4 ] ],
-    [ [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
-    [ [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
-    [ [ 7, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
-    [ [ 7, 4 ], [ 4, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
-    [ [ 7, 7 ], [ 7, 4 ], [ 4, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
-    [ [ 9, 7 ], [ 7, 4 ], [ 7, 9 ], [ 4, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
-    [ [ 7, 7 ], [ 9, 7 ], [ 7, 4 ], [ 7, 9 ], [ 4, 7 ], [ 4, 4 ], [ 9, 9 ], [ 4, 9 ], [ 9, 4] ],
+    [ [ 4, 10 ], [ 10, 4 ] ],
+    [ [ 10, 10 ], [ 4, 10 ], [ 10, 4] ],
+    [ [ 4, 4 ], [ 10, 10 ], [ 4, 10 ], [ 10, 4] ],
+    [ [ 7, 7 ], [ 4, 4 ], [ 10, 10 ], [ 4, 10 ], [ 10, 4] ],
+    [ [ 7, 4 ], [ 4, 7 ], [ 4, 4 ], [ 10, 10 ], [ 4, 10 ], [ 10, 4] ],
+    [ [ 7, 7 ], [ 7, 4 ], [ 4, 7 ], [ 4, 4 ], [ 10, 10 ], [ 4, 10 ], [ 10, 4] ],
+    [ [ 10, 7 ], [ 7, 4 ], [ 7, 10 ], [ 4, 7 ], [ 4, 4 ], [ 10, 10 ], [ 4, 10 ], [ 10, 4] ],
+    [ [ 7, 7 ], [ 10, 7 ], [ 7, 4 ], [ 7, 10 ], [ 4, 7 ], [ 4, 4 ], [ 10, 10 ], [ 4, 10 ], [ 10, 4] ],
   ],
   '19' : [
     0, 0,
     [ [ 4, 16 ], [ 16, 4 ] ],
     [ [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
     [ [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
-    [ [ 9, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
-    [ [ 9, 4 ], [ 4, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
-    [ [ 9, 9 ], [ 9, 4 ], [ 4, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
-    [ [ 16, 9 ], [ 9, 4 ], [ 9, 16 ], [ 4, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
-    [ [ 9, 9 ], [ 16, 9 ], [ 9, 4 ], [ 9, 16 ], [ 4, 9 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 10, 10 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 10, 4 ], [ 4, 10 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 10, 10 ], [ 10, 4 ], [ 4, 10 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 16, 10 ], [ 10, 4 ], [ 10, 16 ], [ 4, 10 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
+    [ [ 10, 10 ], [ 16, 10 ], [ 10, 4 ], [ 10, 16 ], [ 4, 10 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
   ]
 };
   
@@ -234,6 +234,7 @@ const boardSizeEl = document.getElementById('board-size-radio');
 const komiDisplayEl = document.getElementById('komi');
 const handiDisplayEl = document.getElementById('handicap');
 const boardEl = document.querySelector('#board tbody');
+const gameStartEl = document.querySelector('input[name="game-start"]')
 const boardSizeRadioEls = [
   document.querySelectorAll('input[name="board-size"')[0],
   document.querySelectorAll('input[name="board-size"')[1],
@@ -256,7 +257,7 @@ document.getElementById('player-meta').addEventListener('change', clickUpdatePla
 document.querySelector('input[name="komi-suggest"]').addEventListener('click', clickKomiSuggestion);
 gameHudEl.addEventListener('click', clickGameHud);
 boardSizeEl.addEventListener('click', clickBoardSize);
-document.querySelector('input[name="game-start"]').addEventListener('click', clickSubmitStart);
+gameStartEl.addEventListener('click', clickSubmitStart);
 
 /*----- functions -----*/
 init();
@@ -326,6 +327,7 @@ function clickGameHud() {
 }
 
 function clickSubmitStart(evt) {
+  if (gameState.gameMeta.start) return init();
   evt.preventDefault();
   evt.stopPropagation();
   gameState.playerMeta.b.name = blackNameInputEl.value;
@@ -353,6 +355,7 @@ function renderBoardSizeRadio() {
 
 function renderMenu() {
   dateEl.textContent = gameState.gameMeta.date;
+  if (gameState.gameMeta.start) gameStartEl.value = "New Game";
   renderKomi()
   renderHandiSlider();
   renderBoardSizeRadio();
@@ -754,4 +757,3 @@ function endGame() {
   if (!gameState.winner) endGameSetTerritory()
   renderGame();
 }
-
