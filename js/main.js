@@ -1,5 +1,4 @@
 /*----- constants -----*/
-// game state object {gameMeta object, playerMeta object, turn, pass, gameRecord, bCaptures, wCaptures}
 const STONES_DATA = {
   '-1': 'white',
   '0': 'none',
@@ -45,7 +44,7 @@ const HANDI_REC = {
   ]
 }
 
-const gameState = {
+const gameState = { // pre-init values (render prior to any player input)
   winner: null,
   turn: 1, // turn logic depends on handicap stones
   pass: null, // -1 represents state in which resignation has been submitted, not confirmed
@@ -81,7 +80,8 @@ const gameState = {
 
 // deadShapes{}
 
-// index represents handicap placement, eg handiPlace[1] = { (3, 3), (7, 7) }
+// index represents handicap placement for different board-sizes, eg handiPlace['9][1] = { (3, 3), (7, 7) }
+// last array in each property also used for hoshi rendering 
 const HANDI_PLACE = {
   '9' : [
     0, 0,
@@ -113,22 +113,20 @@ const HANDI_PLACE = {
   ]
 };
   
-  const BOARD_POINT_SIZE = {
-    '9' : '9vmin',
-    '13': '6vmin',
-    '19' : '4vmin'
-  }
+const BOARD_POINT_SIZE = {
+  '9' : '9vmin',
+  '13': '6vmin',
+  '19' : '4vmin'
+}
 
-  /*----- app's state (variables) -----*/
+/*----- app's state (variables) -----*/
+
 let boardState = [];
 
-
-  // define initial game state
-  
 class Point {
   constructor(x, y) {
     this.pos = [ x, y ]
-    this.stone = 0; // this is where move placement will go 0, 1, -1 'k'
+    this.stone = 0; // this is where move placement will go 0, 1, -1, also contains ko: 'k'
     this.legal;
     this.territory;
     this.capturing = [];
@@ -158,8 +156,7 @@ class Point {
   }
   getLiberties = () => { 
     let neighborsArr = this.checkNeighbors().filter(pt => pt.stone === 0);
-    return neighborsArr; //checked
-    // return all liberties;
+    return neighborsArr;
   }
   joinGroup = () => {
     this.groupMembers = this.groupMembers.filter(grp => grp.stone === this.stone);
@@ -177,7 +174,6 @@ class Point {
     }
   }
   checkCapture = () => {
-    let tempCaptures = [];
     let opps = this.checkNeighbors().filter(nbr => nbr.stone === gameState.turn * -1 
       && nbr.getLiberties().every(liberty => liberty === this));
     for (let opp of opps) {
@@ -215,14 +211,6 @@ class Point {
       }
     }
 }
-// could use this Array to iterate through and create 
-// let boardCreator = new Array(gameState.boardSize).fill(gameState.boardSize);
-// boardState [point objects-contain overlay] lastState (created from boardState)
-
-// 'k' represents komi, in-game integers represent move previews, 
-// 'chk', 'hold', 'x' and 'l' represent points checked during checkLegalMove run
-// game-end integer represent points of territory, 'd' represents dame,
-
 
 /*----- cached element references -----*/
 const whiteCapsEl = document.getElementById('white-caps');
@@ -242,19 +230,15 @@ const blackNameDisplayEl = document.querySelector('h4#black-player-name');
 const whiteNameDisplayEl = document.querySelector('h4#white-player-name');
 const gameHudEl = document.querySelector('#game-hud p');
 const dateEl = document.getElementById('date');
+const boardSizeEl = document.getElementById('board-size-radio');
+const komiDisplayEl = document.getElementById('komi');
+const handiDisplayEl = document.getElementById('handicap');
+const boardEl = document.querySelector('#board tbody');
 const boardSizeRadioEls = [
   document.querySelectorAll('input[name="board-size"')[0],
   document.querySelectorAll('input[name="board-size"')[1],
   document.querySelectorAll('input[name="board-size"')[2]
 ];
-const boardSizeEl = document.getElementById('board-size-radio');
-const komiDisplayEl = document.getElementById('komi');
-const handiDisplayEl = document.getElementById('handicap');
-const boardEl = document.querySelector('#board tbody');
-
-// store modal #menu for displaying game info
-// store 
-
 
 /*----- event listeners -----*/
 document.getElementById('board').addEventListener('mousemove', hoverPreview);
@@ -408,7 +392,7 @@ function clickResign(evt) {
 }
 
 function playerResign() {
-  // display confirmation message\
+  // display confirmation message
   gameState.pass = -1;
   gameHudEl.style.visibility = "visible";
   gameHudEl.textContent = "Do you want to resign?";
@@ -449,7 +433,7 @@ function checkLegal(point) {
   return true;
 }
 
-function clearOverlay() { //legal and check
+function clearOverlay() {
   for (let point in boardState) {
     point = boardState[point];
     point.legal = false;
@@ -598,6 +582,7 @@ function renderHoshi() {
 
 function clearCurrentBoard() {
   boardEl.innerHTML = '';
+  boardEl.classList = '';
 }
 
 function renderBoardTableStyle() {
@@ -616,6 +601,7 @@ function renderBoardTableRows() {
     boardEl.appendChild(tableRow);
     i++
   }
+  boardEl.classList = `board-${gameState.boardSize}x${gameState.boardSize}`;
 }
 
 function renderBoardTableCells(x) {
@@ -625,8 +611,7 @@ function renderBoardTableCells(x) {
     let newCell = `
     <td id="${x}-${y}">
       <div class="stone">
-        <div class="dot">
-        </div>
+        <div class="dot"></div>
       </div>
     </td>
     `;
@@ -763,17 +748,3 @@ function endGame() {
   renderGame();
 }
 
-    // game record: [ 0: handicapStones Obj, 1: 1stMove([moveState[],moveState[][])]
-    // pass() pass++ and player turn to other player
-    // gameEnd when pass = 2
-        // search empty spaces on board for deadShapes
-            //  compare spaces to rotations of deadShapes[...]
-            // 'd' if empty spaces 
-        // return dead group suggestion
-        // users can flip status of any dead group overlay( 1, -1 ) 
-        // confirm state
-            // calculate score = points in overlay for each player + captures
-            // render final board state with dead groups removed
-        // log game record
-            // stringify according to .sgf format
-            // log as text

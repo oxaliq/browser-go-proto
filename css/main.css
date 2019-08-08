@@ -2,6 +2,7 @@
 
 html {
   font-size: 12px;
+  background-color: #61a6c2;
 }
 
 * {
@@ -14,6 +15,8 @@ html {
 body {
   height: vh;
   width: vw;
+  display: flex;
+  justify-content: center;
 }
 
 .modal {
@@ -36,8 +39,8 @@ body {
   background-color: rgb(250, 2250, 255, 0.9);
   padding: 1vmin;
   display: grid;
-  grid-template-columns: 80vw;
-  grid-template-rows: auto auto 80vw auto;
+  grid-template-columns: 60vw;
+  grid-template-rows: auto auto 60vw auto;
   grid-template-areas:
     "meta"
     "player"
@@ -152,7 +155,6 @@ height: 1;
 }
 
 content {
-  background-color: #61a6c2;
   display: flex !important;
   flex-direction: column; 
   justify-content: space-between !important;
@@ -301,14 +303,27 @@ content {
 }
 
 #board-space td {
-  height: 6vmin;
-  width: 6vmin;
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 24%, #000 25%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 49%, #000 50%, rgba(0,0,0,0) 51%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
   border-radius: 50% solid black;
   color: black;
   margin: auto;
   padding: 0;
   vertical-align: middle;
+}
+
+#board-space .board-9x9 td {
+  height: 9vmin;
+  width: 9vmin;
+}
+
+#board-space .board-13x13 td {
+  height: 7vmin;
+  width: 7vmin;
+}  
+  
+#board-space .board-19x19 td {
+  height: 5vmin;
+  width: 5vmin;
 }
 
 #board-space td.top {
@@ -407,22 +422,70 @@ td .dot .seki {
     width: 50%;
   }
 
-  #menu {
-    grid-template-columns: 60vw;
-    grid-template-rows: auto auto 60vw auto;
-  }
 }
 
 @media only screen and (min-width: 500px) {
-
+  
   html {
     font-size: 14px;
   }
-
+  
   .player-pos {
     height: 14vh;
   }
   
-  
+}
 
+@media only screen and (min-width: 590px) {
+  
+  #board-space .board-19x19 td {
+    height: 3.5vh;
+    width: 3.5vh;
+  }
+  
+}
+
+@media only screen and (min-width: 570px) {
+  
+  #board-space .board-9x9 td {
+    height: 8vh;
+    width: 8vh;
+  }
+  
+  #board-space .board-13x13 td {
+    height: 5.5vh;
+    width: 5.5vh;
+  }  
+  
+}
+
+@media only screen and (min-width: 700px) {
+  
+  content {
+    width: 700px;
+  }
+  
+  #menu {
+    grid-template-columns: 50vw;
+    grid-template-rows: auto auto 50vw auto;
+  }
+  
+}
+
+@media only screen and (min-width: 900px) {
+  
+  #menu {
+    grid-template-columns: 40vw;
+    grid-template-rows: auto auto 40vw auto;
+  }
+  
+}
+
+@media only screen and (min-width: 1200px) {
+  
+  #menu {
+    grid-template-columns: 35vw;
+    grid-template-rows: auto auto 35vw auto;
+  }
+  
 }
