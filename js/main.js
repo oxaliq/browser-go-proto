@@ -85,7 +85,7 @@ const gameState = { // pre-init values (render prior to any player input)
 const HANDI_PLACE = {
   '9' : [
     0, 0,
-    [ [ 7, 3 ], [ 3, 7 ] ], 
+    [[ 7, 3 ], [ 3, 7 ] ], 
     [ [ 7, 7 ], [ 7, 3 ], [ 3, 7 ] ], 
     [ [ 3, 3 ], [ 7, 7 ], [ 3, 7 ], [ 7, 3 ] ] 
   ],
@@ -261,7 +261,10 @@ document.querySelector('input[name="game-start"]').addEventListener('click', cli
 /*----- functions -----*/
 init();
 
-let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
+function findPointFromIdx(arr) {
+  console.log(arr);
+  return pointFromIdx = boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
+}
 
 function changeUpdateKomi(evt) {
   evt.stopPropagation();
@@ -511,12 +514,16 @@ function initBoard() {
     boardState.push(point);
     i++;
   }
-  // initHandi();
+  initHandi();
 }
 
 function initHandi() {
+  if (gameState.handicap < 2) return;
   HANDI_PLACE[gameState.boardSize][gameState.handicap].forEach(pt => {
-
+    if (!pt) return;
+    let handi = findPointFromIdx(pt);
+    handi.stone = 1;
+    handi.joinGroup();
   })
 }
 
@@ -562,25 +569,25 @@ function renderGame() {
 }
 
 function renderBoardInit() {
-  clearCurrentBoard();
+  renderClearBoard();
   renderBoardTableRows();
   renderHoshi();
   renderBoardTableStyle();
 }
 
-function renderHoshi() {
+function renderHoshi() { // gets hoshi placement from handiplace const and adds a class to dot elem
   let hoshi = HANDI_PLACE[gameState.boardSize].slice(-1);
-  console.log(hoshi);
+  hoshi = hoshi[0]
   hoshi.forEach(star => {
-    console.log(star);
-    let starPt = findPointFromIdx(star);
-    console.log(starPt);
-    // .getElementsByClassName['dot'].style.className += ' hoshi' });
-})
+    console.log(hoshi);
+    console.log(`star: ${star[0][0]}
+    ${star[0][1]} end star`)
+    let boardPt = document.getElementById(`${star[0]}-${star[1]}`).getElementsByClassName('dot')[0];
+    console.log(boardPt);
+    boardPt.className += ' hoshi' });
 }
-// HANDI_PLACE[gameState.boardSize].slice(-1) [0] [0][0] === boardState[20].pos[0]
 
-function clearCurrentBoard() {
+function renderClearBoard() {
   boardEl.innerHTML = '';
   boardEl.classList = '';
 }
