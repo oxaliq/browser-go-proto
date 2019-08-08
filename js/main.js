@@ -59,7 +59,8 @@ const gameState = {
     wScore: null
   },
   gameMeta: { // declared at game start and not editable after
-    date: null // contains metadata 
+    date: null, // contains metadata 
+    start: false
   },
   playerMeta: { // editable during game
     b: {
@@ -248,7 +249,7 @@ document.getElementById('board').addEventListener('mousemove', hoverPreview);
 document.getElementById('board').addEventListener('click', clickBoard);
 document.getElementById('white-bowl').addEventListener('click',clickPass);
 document.getElementById('black-bowl').addEventListener('click',clickPass);
-document.getElementById('kifu').addEventListener('click', clickMenu);
+document.getElementById('kifu').addEventListener('click', clickMenuOpen);
 document.getElementById('white-caps-space').addEventListener('click', clickResign);
 document.getElementById('black-caps-space').addEventListener('click', clickResign);
 modalEl.addEventListener('click', clickCloseMenu);
@@ -261,25 +262,27 @@ gameHudEl.addEventListener('click', clickGameHud);
 boardSizeEl.addEventListener('click', clickBoardSize);
 document.querySelector('input[name="game-start"]').addEventListener('click', clickSubmitStart);
 
-
 /*----- functions -----*/
 init();
 
 let findPointFromIdx = (arr) => boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
 
 function changeUpdateKomi() {
+  evt.stopPropagation();
   komiDisplayEl.textContent = komiSliderEl.value;
   gameState.komi = komiSliderEl.value;
   renderMenu();
 }
 
 function changeUpdateHandicap() {
+  evt.stopPropagation();
   handiDisplayEl.textContent = handiSliderEl.value  !== 1 ? handiSliderEl.value : 0;
   gameState.handicap = handiSliderEl.value !== 1 ? handiSliderEl.value : 0;
   renderMenu();
 }
 
 function clickUpdatePlayerMeta(evt) {
+  evt.stopPropagation();
   if (evt.target.id) {
     switch (evt.target.id) {
       case 'black-rank-up':
@@ -302,13 +305,14 @@ function clickUpdatePlayerMeta(evt) {
   
 }
 
-function clickBoardSize() {
+function clickBoardSize(evt) {
+  evt.stopPropagation();
   gameState.boardSize = boardSizeEl.value;
   renderMenu();
 }
 
 function clickKomiSuggestion(evt) {
-  debugger;
+  evt.preventDefault();
   evt.stopPropagation();
   let sugg = KOMI_REC[gameState.boardSize][Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
   let handi = HANDI_REC[gameState.boardSize][Math.abs(gameState.playerMeta.w.rank - gameState.playerMeta.b.rank)];
@@ -322,27 +326,30 @@ function clickGameHud() {
   if (gameState.pass < 0) confirmResign();
 }
 
-function clickSubmitStart() {
+function clickSubmitStart(evt) {
+  evt.preventDefault();
+  evt.stopPropagation();
   gameState.playerMeta.b.name = blackNameInputEl.value;
   gameState.playerMeta.w.name = whiteNameInputEl.value;
+  modalEl.style.visibility = 'hidden';
   initGame();
 }
 
 function renderKomi() {
   komiSliderEl.value = gameState.komi;
   komiDisplayEl.textContent = gameState.komi;
-  if (gameState.gameRecord.length) komiSliderEl.setAttribute('disabled', true);
+  if (gameState.gameMeta.start) komiSliderEl.setAttribute('disabled', true);
 }
 
 function renderHandiSlider() {
   handiSliderEl.value = gameState.handicap;
   handiDisplayEl.textContent = gameState.handicap;
-  if (gameState.gameRecord.length) handiSliderEl.setAttribute('disabled', true);
+  if (gameState.gameMeta.start) handiSliderEl.setAttribute('disabled', true);
 }
 
 function renderBoardSizeRadio() {
   boardSizeEl.value = gameState.boardSize;
-  if (gameState.gameRecord.length) boardSizeEl.setAttribute('disabled', true);
+  if (gameState.gameMeta.start) boardSizeEl.setAttribute('disabled', true);
 }
 
 function renderMenu() {
@@ -350,8 +357,6 @@ function renderMenu() {
   renderKomi()
   renderHandiSlider();
   renderBoardSizeRadio();
-  blackNameDisplayEl.textContent = gameState.playerMeta.b.name;
-  whiteNameDisplayEl.textContent = gameState.playerMeta.w.name;
   blackRankEl.textContent = RANKS[gameState.playerMeta.b.rank];
   whiteRankEl.textContent = RANKS[gameState.playerMeta.w.rank];
 }
@@ -371,11 +376,9 @@ function playerPass() {
   renderGame();
 }
 
-function clickMenu() {
+function clickMenuOpen() {
   modalEl.style.visibility = 'visible';
-  changeUpdateKomi();
-  changeUpdateHandicap();
-  clickUpdatePlayerMeta();
+  renderMenu();
 }
 
 function startMenu() {
@@ -522,7 +525,8 @@ function getDate() {
 }
 function init() {
   gameState.gameMeta.date = getDate();
-  gameState.komi = 5.5; // get komi from player input
+  gameState.komi = 5.5;
+  gameState.handicap = 0;
   gameState.winner = null;
   gameState.pass = null;
   gameState.boardSize = 9;
@@ -530,6 +534,7 @@ function init() {
   gameState.playerState.wCaptures = 0;
   gameState.gameRecord = [];
   boardState = [];
+  gameState.gameMeta.start = false;
   startMenu();
 };
 
@@ -537,7 +542,7 @@ function initGame() {
   gameState.winner = null;
   gameState.pass = null;
   gameState.turn = gameState.handicap ? -1 : 1;
-  
+  gameState.gameMeta.start = true;
   initBoard();
   renderGame();
 }
@@ -547,6 +552,8 @@ function renderGame() {
     renderTerritory();
     renderMessage();
   }
+  blackNameDisplayEl.textContent = gameState.playerMeta.b.name;
+  whiteNameDisplayEl.textContent = gameState.playerMeta.w.name;
   gameState.gameRecord.length? renderTurn() : renderFirstTurn();
   renderBoard();
   renderCaps();
