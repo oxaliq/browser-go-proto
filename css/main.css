@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css?family=La+Belle+Aurore|Raleway:300|Raleway:600');
 
-html {
-  font-size: 12px;
-  background-color: #61a6c2;
-}
-
 * {
   box-sizing: border-box;
   margin: 0;
   vertical-align: middle;
   font-family: 'Raleway', sans-serif;
+}
+
+html {
+  font-size: 12px;
+  background: radial-gradient(farthest-corner at 55% 40%, rgb(150, 200, 220) 0%, rgb(97, 166, 194) 65%, rgb(70,100,120) 90%, rgb(40, 80, 90) 100%);
 }
 
 body {
@@ -139,10 +139,6 @@ border: 2px solid black;
 height: 1;
 }
 
-#instructions:::-webkit-scrollbar-track {
-  border: 1px solid rgba(0,0,0,0.3);
-}
-
 #game-record {
   visibility: hidden;
 }
@@ -164,7 +160,7 @@ content {
 
 .player-pos {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-around;
   flex: 5;
   height: 9vmin;
@@ -183,6 +179,7 @@ content {
 }
 
 .player-pos#black-pos {
+  align-items: flex-start;
   flex-direction: row-reverse;
   justify-self: flex-end;
 }
@@ -195,19 +192,16 @@ content {
   transform: rotate(-20deg);
 }
 
-#kifu table {
-  
-}
-
 .bowl {
   order: -1;
-  margin: 1vh;
-  height: 10vh;
-  width: 10vh;
+  margin: 4vh;
+  height: 15vh;
+  width: 15vh;
   /* border: solid black; */
   border-radius: 50%;
   background-color: rgb(116, 48, 17);
-  box-shadow: -1vmin 2vmin 3vmin rgba(83, 53, 35, 0.61);
+  background: radial-gradient(closest-corner at 52% 46%, rgba(30, 5, 0, 0.5) 0%, rgb(0,0,0,0.5)35%, rgb(116,48,17) 48%, rgb(140, 60, 40) 52%, rgb(116, 48, 17) 65%, rgb(100,40,5) 70%, rgb(80, 20, 0) 80%);
+  box-shadow: -1vmin 2vmin 1.5vmin rgba(83, 53, 35, 0.61);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,6 +209,13 @@ content {
 
 .bowl p {
   display: none;
+}
+
+.stone-image {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+  z-index: -1;
 }
 
 .bowl[data-turn]:hover p {
@@ -231,9 +232,9 @@ content {
 
 .caps-space {
   color: #FFF;
-  margin: 1vh;
-  height: 6vh;
-  width: 6vh;
+  margin: 3vh;
+  height: 10vh;
+  width: 10vh;
   border-radius: 50%;
   background-color: rgb(116, 48, 17);
   box-shadow: -0.5vmin 1vmin 3vmin rgba(83, 53, 35, 0.61);
@@ -275,19 +276,12 @@ content {
     "board";
 }
 
-#board-underlay {
-  grid-area: board;
-  background-color: rgb(255, 255, 255);
-  width: 100%;
-  height: 100%;
-}
-
 #board-space {
   grid-area: board;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background-color: rgba(234, 178, 78, 1);
+  background: radial-gradient(farthest-corner at 55% 40%, rgb(244, 230, 120) 0%, rgb(234, 178, 78) 65%, rgb(200,160,90) 90%, rgb(200, 140, 90) 100%);
   padding: 1vmin;
   z-index: 1;
   box-shadow: -2vmin 4vmin 3vmin rgba(145, 92, 23, 0.5);
@@ -358,11 +352,9 @@ content {
   background: conic-gradient(#000 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0) 74%, #000 75%, rgba(0,0,0,0) 76%, rgba(0,0,0,0) 99%, #000 100%);
 }
 
-.dot.hoshi { /* to be added later */
-  background: radial-gradient(circle farthest-corner at center, #000 0%, #000 44%, rgba(0,0,0,0) 45%);
+.stone.hoshi { /* to be added later */
+  background: radial-gradient(circle farthest-corner at center, #000 0%, #000 14%, rgba(0,0,0,0) 15%);
   z-index: 3;
-  width: 100%;
-  height: 100%;
 }
 
 td .stone {
@@ -385,14 +377,19 @@ td .stone .dot {
 
 td .stone[data-stone="ko"] {
   background-color: transparent;
-  border: 1vmin solid red;
+  border: 1vmin solid rgba(200,20,50,0.8);
+  border-radius: 0%;
 }
 td .stone[data-stone="white"] {
-  background-color: white;
+  background: radial-gradient(farthest-side at 55% 40%, white 0%, rgb(200,200,200) 65%, rgb(100,100,100) 90%, rgb(68, 50, 0) 100%);
+  box-shadow: -.25vmin .5vmin .5vmin rgba(145, 92, 23, 0.5);
 }
 td .stone[data-stone="black"] {
   background-color: black;
+  background: radial-gradient(farthest-side at 55% 40%, rgb(220,220,220) 0%, rgb(60,60,60) 45%, rgb(15,15,15) 90%, rgb(5, 5, 0) 100%);
+  box-shadow: -.25vmin .5vmin .5vmin rgba(145, 92, 23, 0.75);
 }
+
 td .stone[data-stone="none"] {
   background-color: transparent;
 }
@@ -407,9 +404,6 @@ td .dot[data-dot="none"] {
 }
 td .dot[data-dot="dame"] {
   background-color: purple;
-}
-td .dot .seki {
-
 }
 
 @media only screen and (min-width: 591px) {

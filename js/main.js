@@ -585,7 +585,7 @@ function renderHoshi() { // gets hoshi placement from handiplace const and adds 
     console.log(hoshi);
     console.log(`star: ${star[0][0]}
     ${star[0][1]} end star`)
-    let boardPt = document.getElementById(`${star[0]}-${star[1]}`).getElementsByClassName('dot')[0];
+    let boardPt = document.getElementById(`${star[0]}-${star[1]}`).getElementsByClassName('stone')[0];
     console.log(boardPt);
     boardPt.className += ' hoshi' });
 }
