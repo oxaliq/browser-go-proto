@@ -113,6 +113,12 @@ const HANDI_PLACE = {
   ]
 };
   
+  const BOARD_POINT_SIZE = {
+    '9' : '9vmin',
+    '13': '6vmin',
+    '19' : '4vmin'
+  }
+
   /*----- app's state (variables) -----*/
 let boardState = [];
 
@@ -236,9 +242,15 @@ const blackNameDisplayEl = document.querySelector('h4#black-player-name');
 const whiteNameDisplayEl = document.querySelector('h4#white-player-name');
 const gameHudEl = document.querySelector('#game-hud p');
 const dateEl = document.getElementById('date');
+const boardSizeRadioEls = [
+  document.querySelectorAll('input[name="board-size"')[0],
+  document.querySelectorAll('input[name="board-size"')[1],
+  document.querySelectorAll('input[name="board-size"')[2]
+];
 const boardSizeEl = document.getElementById('board-size-radio');
 const komiDisplayEl = document.getElementById('komi');
 const handiDisplayEl = document.getElementById('handicap');
+const boardEl = document.querySelector('#board tbody');
 
 // store modal #menu for displaying game info
 // store 
@@ -307,7 +319,7 @@ function clickUpdatePlayerMeta(evt) {
 
 function clickBoardSize(evt) {
   evt.stopPropagation();
-  gameState.boardSize = document.querySelector('#board-size-radio [checked]').value;
+  gameState.boardSize = boardSizeRadioEls.find(el => el.checked === true).value;
   renderMenu();
 }
 
@@ -349,7 +361,7 @@ function renderHandiSlider() {
 
 function renderBoardSizeRadio() {
   boardSizeEl.value = gameState.boardSize;
-  if (gameState.gameMeta.start) boardSizeEl.setAttribute('disabled', true);
+  if (gameState.gameMeta.start) boardSizeRadioEls.forEach(el => el.setAttribute('disabled', true));
 }
 
 function renderMenu() {
@@ -413,7 +425,8 @@ function hoverPreview(evt) {
   evt.stopPropagation();
   if (gameState.pass > 1 || gameState.winner) return;
   // renders preview stone if move is legal
-  let hover = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
+  let hover = evt.target.closest('td').id.split('-');
+  hover = [parseInt(hover[0]), parseInt(hover[1])]
   let point = findPointFromIdx(hover);
   if (checkLegal(point)) {
     point.legal = true; // legal
@@ -457,7 +470,7 @@ function resolveCaptures(point) {
 }
 
 function editTerritory(evt) {
-  let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
+  let placement = [ parseInt(evt.target.closest('td').id.split('-')[0]), parseInt(evt.target.closest('td').id[2]) ];
   let point = findPointFromIdx(placement);
   point.cycleTerritory();
   renderGame();
@@ -472,7 +485,9 @@ function clickBoard(evt) {
   evt.stopPropagation();
   if (gameState.pass > 1 || gameState.winner) return editTerritory(evt);
   // checks for placement and pushes to cell
-  let placement = [ parseInt(evt.target.closest('td').id[0]), parseInt(evt.target.closest('td').id[2]) ];
+  let placement = [ parseInt(evt.target.closest('td').id.split('-')[0]), parseInt(evt.target.closest('td').id.split('-')[1]) ];
+  console.log(placement);
+  console.log(evt);
   let point = findPointFromIdx(placement);
   //checks that this placement was marked as legal
   if ( !checkLegal(point) ) return;
@@ -516,7 +531,9 @@ function initBoard() {
 }
 
 function initHandi() {
-  // HANDI_PLACE[gameState.handicap]
+  HANDI_PLACE[gameState.boardSize][gameState.handicap].forEach(pt => {
+
+  })
 }
 
 function getDate() {
@@ -544,6 +561,7 @@ function initGame() {
   gameState.turn = gameState.handicap ? -1 : 1;
   gameState.gameMeta.start = true;
   initBoard();
+  renderBoardInit();
   renderGame();
 }
     
@@ -555,8 +573,54 @@ function renderGame() {
   blackNameDisplayEl.textContent = gameState.playerMeta.b.name;
   whiteNameDisplayEl.textContent = gameState.playerMeta.w.name;
   gameState.gameRecord.length? renderTurn() : renderFirstTurn();
-  renderBoard();
+  renderBoardState();
   renderCaps();
+}
+
+function renderBoardInit() {
+  clearCurrentBoard();
+  renderBoardTableRows();
+  renderBoardTableStyle();
+}
+
+function clearCurrentBoard() {
+  boardEl.innerHTML = '';
+}
+
+function renderBoardTableStyle() {
+  document.querySelectorAll('#board-space td[id^="1-"]').forEach(pt => pt.className += 'top ');
+  document.querySelectorAll(`#board-space td[id^="${gameState.boardSize}-"]`).forEach(pt => pt.className += 'btm ');
+  document.querySelectorAll('#board-space td[id$="-1"]').forEach(pt => pt.className += 'lft ');
+  document.querySelectorAll(`#board-space td[id$="-${gameState.boardSize}"]`).forEach(pt => pt.className += 'rgt ');
+}
+
+function renderBoardTableRows() {
+  let i = 1;
+  while (i <= gameState.boardSize) {
+    let tableRow = document.createElement('tr');
+    tableRow.id = `row-${i}`;
+    tableRow.innerHTML = renderBoardTableCells(i);
+    boardEl.appendChild(tableRow);
+    i++
+  }
+}
+
+function renderBoardTableCells(x) {
+  let y = 1
+  let cells = '';
+  while (y <= gameState.boardSize) {
+    let newCell = `
+    <td id="${x}-${y}">
+      <div class="stone">
+        <div class="dot">
+        </div>
+      </div>
+    </td>
+    `;
+    cells = cells + newCell;
+    y++;
+  }
+  return cells;
 }
 
 function renderMessage() {
@@ -579,7 +643,7 @@ function renderMessage() {
 
 function renderTerritory() {
   boardState.forEach(val => {
-    let stoneElem = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).childNodes[1].childNodes[0];
+    let stoneElem = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).getElementsByClassName('dot')[0];
     stoneElem.setAttribute("data-dot", DOTS_DATA[val.territory]);
   })
 }
@@ -596,9 +660,9 @@ function renderTurn() {
   document.querySelectorAll(`.bowl`).forEach(bowl => bowl.toggleAttribute('data-turn'));
 }
 
-function renderBoard() {
+function renderBoardState() {
   boardState.forEach(val => {
-    let stoneElem = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).childNodes[1];
+    let stoneElem = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).getElementsByClassName('stone')[0];
     stoneElem.setAttribute("data-stone", STONES_DATA[val.stone]);
   })
 }
@@ -610,7 +674,7 @@ function renderCaps() {
 
 function renderPreview(hoverPoint) {
   boardState.forEach(val => {
-    let dot = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).childNodes[1].childNodes[0];
+    let dot = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).getElementsByClassName('dot')[0];
     dot.setAttribute("data-dot", val.legal === true && val.pos[0] === hoverPoint.pos[0] && val.pos[1] === hoverPoint.pos[1] ? DOTS_DATA[gameState.turn] : DOTS_DATA[0]);
 
   })
