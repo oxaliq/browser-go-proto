@@ -474,8 +474,8 @@ function resolveCaptures(point) {
   if(point.capturing.length) {
     point.capturing.forEach(cap => {
       gameState.playerState[gameState.turn > 0 ? 'bCaptures' : 'wCaptures']++;
+      cap.stone = checkKo(point) ? 'k' : 0;
       cap.groupMembers = [];
-      cap.stone = checkKo(point, cap) ? 'k' : 0;
     })
   }
 }
@@ -502,9 +502,9 @@ function clearOverlay() {
   }
 }
 
-function checkKo(point, cap) { // currently prevents snapback
-  if (!point.getLiberties().length && cap.checkNeighbors().filter(stone => stone.stone === gameState.turn * -1) 
-    && point.capturing.length === 1) return true;
+// 
+function checkKo(point) { // currently prevents snapback // capturing point has no liberties and is only capturing one stone and 
+  if (!point.getLiberties().length && point.capturing.length === 1 && !point.checkNeighbors().some(stone => stone.stone === gameState.turn)) return true;
 }
 
 function playSound(point) { //plays louder sounds for tenuki and for captures
