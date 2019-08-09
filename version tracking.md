@@ -1,7 +1,7 @@
 # Browser Go 
-#### Minimum Deliverable Product
+#### Version 1 Requirements
 
-a working game of go for a 9x9 board that
+a working game of go that
 - [x] displays well on mobile or desktop 
 - [x] initiates a game with suggested handicap and komi according to rank input
 - [x] displays how to play in open screen
@@ -19,19 +19,21 @@ a working game of go for a 9x9 board that
 - [x] allows users to submit finalized score to game record
 - [ ] displays game record as string
 
-stretch goals
+additional features
 - [x] uses stone placement GUI for resign and pass
 - [ ] maintains a one move game state history for 'undo mismove'
 - [ ] converts string to .sgf format
 - [x] allows users to edit game info mid game
-- [ ] add stone placement sounds
-  
-superstretch goals
+- [x] add stone placement sounds
 - [x] allows users to select board size (9x9, 13x13, 19x19)
-- [ ] allows users to load .sgf main lines
-- [ ] allow for responsivity in the form of
-- - [x]  9x9 games simply stretch with screen size
-- - [ ] larger games allow small displays one click to zoom before running legal move calculations and move placement
+- [x] 9x9 games simply stretch with screen size
+- [ ] timed game functionality 
+- [ ] larger games allow small displays one click to zoom before running legal move calculations and move placement
+  
+later version features
+- [ ] allows users to read/write .sgf files
+- [ ] allow users to edit multiple game lines
+- [ ] allow users to play and generate tsumego
 
 <!-- describe go with images of game-->
 

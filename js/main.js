@@ -44,13 +44,31 @@ const HANDI_REC = {
   ]
 }
 
+const PLACEMENT_SOUNDS = {
+  soft: [
+    'audio/go_soft.wav',
+    'audio/go_soft_2.wav',
+    'audio/go_soft_3.wav',
+    'audio/go_soft_4.wav',
+    'audio/go_soft_5.wav',
+    'audio/go_soft_6.wav',
+    'audio/go_soft_7.wav'
+  ],
+  loud: [
+    'audio/go_loud.wav',
+    'audio/go_loud_2.wav',
+    'audio/go_loud_3.wav',
+    'audio/go_loud_4.wav',
+  ]
+}
+
 const gameState = { // pre-init values (render prior to any player input)
   winner: null,
-  turn: 1, // turn logic depends on handicap stones
+  turn: null, // turn logic depends on handicap stones
   pass: null, // -1 represents state in which resignation has been submitted, not confirmed
   komi: null, // komi depends on handicap stones + player rank
   handicap: null,
-  boardSize: 9,
+  boardSize: null,
   playerState: {
     bCaptures: null,
     wCaptures: null,
@@ -64,21 +82,18 @@ const gameState = { // pre-init values (render prior to any player input)
   playerMeta: { // editable during game
     b: {
       name: null,
-      rank: 21, 
+      rank: null, 
       rankCertain: false
     },
     w: {
       name: null,
-      rank: 21,
+      rank: null,
       rankCertain: false
     },
   },
   groups: {},
   gameRecord : []
 }
-
-
-// deadShapes{}
 
 // index represents handicap placement for different board-sizes, eg handiPlace['9][1] = { (3, 3), (7, 7) }
 // last array in each property also used for hoshi rendering 
@@ -112,16 +127,6 @@ const HANDI_PLACE = {
     [ [ 10, 10 ], [ 16, 10 ], [ 10, 4 ], [ 10, 16 ], [ 4, 10 ], [ 4, 4 ], [ 16, 16 ], [ 4, 16 ], [ 16, 4] ],
   ]
 };
-  
-const BOARD_POINT_SIZE = {
-  '9' : '9vmin',
-  '13': '6vmin',
-  '19' : '4vmin'
-}
-
-/*----- app's state (variables) -----*/
-
-let boardState = [];
 
 class Point {
   constructor(x, y) {
@@ -191,26 +196,30 @@ class Point {
       continue;
       }
     }
-    cycleTerritory = () => {
-      if (this.stone) {
-        this.groupMembers.forEach(pt => pt.territory = pt.territory * -1);
-      } else {
-        this.groupMembers.forEach(pt => {
-          switch (pt.territory) {
-          case 1:
-            pt.territory = -1;
-            break;
-          case -1:
-            pt.territory = 'd';
-            break;
-          case 'd':
-            pt.territory = 1;
-            break;
-          }
-        });
-      }
+  cycleTerritory = () => {
+    if (this.stone) {
+      this.groupMembers.forEach(pt => pt.territory = pt.territory * -1);
+    } else {
+      this.groupMembers.forEach(pt => {
+        switch (pt.territory) {
+        case 1:
+          pt.territory = -1;
+          break;
+        case -1:
+          pt.territory = 'd';
+          break;
+        case 'd':
+          pt.territory = 1;
+          break;
+        }
+      });
     }
+  }
 }
+
+/*----- app's state (variables) -----*/
+let boardState = [];
+
 
 /*----- cached element references -----*/
 const whiteCapsEl = document.getElementById('white-caps');
@@ -236,6 +245,7 @@ const handiDisplayEl = document.getElementById('handicap');
 const boardEl = document.querySelector('#board tbody');
 const gameStartEl = document.querySelector('input[name="game-start"]');
 const komiSuggestEl = document.querySelector('input[name="komi-suggest"]');
+const soundPlayerEl = new Audio();
 const boardSizeRadioEls = [
   document.querySelectorAll('input[name="board-size"')[0],
   document.querySelectorAll('input[name="board-size"')[1],
@@ -260,11 +270,80 @@ gameHudEl.addEventListener('click', clickGameHud);
 boardSizeEl.addEventListener('click', clickBoardSize);
 gameStartEl.addEventListener('click', clickSubmitStart);
 
-/*----- functions -----*/
+/*----- FUNCTIONS ----------------------------------*/
+/*----- init functions -----*/
 init();
 
+function init() {
+  gameState.gameMeta.date = getDate();
+  gameState.komi = 5.5;
+  gameState.handicap = 0;
+  gameState.winner = null;
+  gameState.pass = null;
+  gameState.boardSize = 19;
+  gameState.playerState.bCaptures = 0;
+  gameState.playerMeta.b.rank = 21;
+  gameState.playerState.wCaptures = 0;
+  gameState.playerMeta.w.rank = 21;
+  gameState.gameRecord = [];
+  boardState = [];
+  gameState.gameMeta.start = false;
+  startMenu();
+};
+
+function getDate() {
+  let d = new Date;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).charAt(-1)||0}${String(d.getMonth()+1).charAt(-0)}-${String(d.getDate()).charAt(-1)||0}${String(d.getDate()+1).charAt(-0)}`
+}
+
+function startMenu() {
+  modalEl.style.visibility = 'visible';
+  renderMenu();
+}
+function clickSubmitStart(evt) {
+  if (gameState.gameMeta.start) return init();
+  evt.preventDefault();
+  evt.stopPropagation();
+  gameState.playerMeta.b.name = blackNameInputEl.value || 'black';
+  gameState.playerMeta.w.name = whiteNameInputEl.value || 'white';
+  modalEl.style.visibility = 'hidden';
+  initGame();
+}
+
+function initGame() {
+  gameState.winner = null;
+  gameState.pass = null;
+  gameState.turn = gameState.handicap ? -1 : 1;
+  gameState.gameMeta.start = true;
+  initBoard();
+  renderBoardInit();
+  renderGame();
+}
+
+function initBoard() {
+  let i = 0;
+  while (i < gameState.boardSize * gameState.boardSize) {
+    let point = new Point( Math.floor(i / gameState.boardSize) + 1, i % gameState.boardSize + 1)
+    boardState.push(point);
+    i++;
+  }
+  initHandi();
+}
+
+function initHandi() {
+  if (gameState.handicap < 2) return;
+  HANDI_PLACE[gameState.boardSize][gameState.handicap].forEach(pt => {
+    if (!pt) return;
+    let handi = findPointFromIdx(pt);
+    handi.stone = 1;
+    handi.joinGroup();
+  })
+}
+
+/*----- meta functions -----*/
+// plus general purpose
+
 function findPointFromIdx(arr) {
-  console.log(arr);
   return pointFromIdx = boardState.find( point => point.pos[0] === arr[0] && point.pos[1] === arr[1] );
 }
 
@@ -287,16 +366,16 @@ function clickUpdatePlayerMeta(evt) {
   if (evt.target.id) {
     switch (evt.target.id) {
       case 'black-rank-up':
-        gameState.playerMeta.b.rank++;
+        if (gameState.playerMeta.b.rank < RANKS.length - 1)  gameState.playerMeta.b.rank++;
         break;
       case 'black-rank-down':
-        gameState.playerMeta.b.rank--;
+        if (gameState.playerMeta.b.rank > 0) gameState.playerMeta.b.rank--;
         break;
       case 'white-rank-up':
-        gameState.playerMeta.w.rank++;
+        if (gameState.playerMeta.w.rank < RANKS.length - 1) gameState.playerMeta.w.rank++;
         break;
       case 'white-rank-down':
-        gameState.playerMeta.w.rank--;
+        if (gameState.playerMeta.w.rank > 0) gameState.playerMeta.w.rank--;
         break;
     }
   }
@@ -328,109 +407,54 @@ function clickKomiSuggestion(evt) {
   renderMenu();
 }
 
-function clickGameHud() {
-  if (gameState.pass > 1 && !gameState.winner) calculateWinner();
-  if (gameState.pass < 0) confirmResign();
-}
-
-function clickSubmitStart(evt) {
-  if (gameState.gameMeta.start) return init();
-  evt.preventDefault();
-  evt.stopPropagation();
-  gameState.playerMeta.b.name = blackNameInputEl.value || 'black';
-  gameState.playerMeta.w.name = whiteNameInputEl.value || 'white';
-  modalEl.style.visibility = 'hidden';
-  initGame();
-}
-
-function renderKomi() {
-  komiSliderEl.value = gameState.komi;
-  komiDisplayEl.textContent = gameState.komi;
-  if (gameState.gameMeta.start) komiSliderEl.setAttribute('disabled', true);
-}
-
-function renderHandiSlider() {
-  handiSliderEl.value = gameState.handicap;
-  handiDisplayEl.textContent = gameState.handicap;
-  if (gameState.gameMeta.start) handiSliderEl.setAttribute('disabled', true);
-}
-
-function renderBoardSizeRadio() {
-  boardSizeEl.value = gameState.boardSize;
-  if (gameState.gameMeta.start) boardSizeRadioEls.forEach(el => el.setAttribute('disabled', true));
-}
-
-function renderMenu() {
-  dateEl.textContent = gameState.gameMeta.date;
-  if (gameState.gameMeta.start) {
-    gameStartEl.value = "New Game";
-    komiSuggestEl.value = "Close Menu";
-  }
-  renderKomi()
-  renderHandiSlider();
-  renderBoardSizeRadio();
-  blackRankEl.textContent = RANKS[gameState.playerMeta.b.rank];
-  whiteRankEl.textContent = RANKS[gameState.playerMeta.w.rank];
-}
-
-function clickPass(evt) {
-  if (evt.target.parentElement.id === `${STONES_DATA[gameState.turn]}-bowl`) playerPass();
-}
-
-function playerPass() {
-  // display confirmation message
-  clearKo();
-  clearCaptures();
-  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: pass`)
-  gameState.pass++;
-  if (gameState.pass === 2) return endGame();
-  gameState.turn*= -1;
-  renderGame();
-}
-
-function clickMenuOpen() {
-  modalEl.style.visibility = 'visible';
-  renderMenu();
-}
-
-function startMenu() {
-  modalEl.style.visibility = 'visible';
-  renderMenu();
-}
-
 function clickCloseMenu(evt) {
   evt.stopPropagation();
   if (evt.target.className === "modal" && gameState.gameMeta.start) modalEl.style.visibility = 'hidden';
 }
 
-function clickResign(evt) {
-  if (evt.target.parentElement.id === `${STONES_DATA[gameState.turn]}-caps-space`) playerResign();
-}
+/*----- gameplay functions -----*/
 
-function playerResign() {
-  // display confirmation message
-  gameState.pass = -1;
-  gameHudEl.style.visibility = "visible";
-  gameHudEl.textContent = "Do you want to resign?";
-}
-
-function confirmResign() {
-  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: resign`);
-  gameState.winner = STONES_DATA[gameState.turn * -1];
-  endGame();
-}
-
-
-function hoverPreview(evt) {
+function clickBoard(evt) {
   evt.stopPropagation();
-  if (gameState.pass > 1 || gameState.winner) return;
-  // renders preview stone if move is legal
-  let hover = evt.target.closest('td').id.split('-');
-  hover = [parseInt(hover[0]), parseInt(hover[1])]
-  let point = findPointFromIdx(hover);
-  if (checkLegal(point)) {
-    point.legal = true; // legal
-    renderPreview(point);
+  if (gameState.pass > 1 || gameState.winner) return editTerritory(evt);
+  // checks for placement and pushes to cell
+  let placement = [ parseInt(evt.target.closest('td').id.split('-')[0]), parseInt(evt.target.closest('td').id.split('-')[1]) ];
+  let point = findPointFromIdx(placement);
+  //checks that this placement was marked as legal
+  if ( !checkLegal(point) ) return;
+  clearKo();
+  clearPass();
+  resolveCaptures(point);
+  point.stone = gameState.turn;
+  point.joinGroup();
+  playSound(point);
+  clearCaptures();
+  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: ${point.pos}`)
+  gameState.turn*= -1;
+  renderGame();
+}
+
+function clearKo() {
+  for (let point in boardState) {
+    point = boardState[point];
+    point.stone = point.stone === 'k' ? 0 : point.stone;
+  }
+}
+
+function clearPass() {
+  gameState.pass = 0;
+}
+
+function resolveCaptures(point) {
+  if(!point.capturing.length) {
+    point.checkCapture();
+  }
+  if(point.capturing.length) {
+    point.capturing.forEach(cap => {
+      gameState.playerState[gameState.turn > 0 ? 'bCaptures' : 'wCaptures']++;
+      cap.groupMembers = [];
+      cap.stone = checkKo(point, cap) ? 'k' : 0;
+    })
   }
 }
 
@@ -456,61 +480,20 @@ function clearOverlay() {
   }
 }
 
-function resolveCaptures(point) {
-  if(!point.capturing.length) {
-    point.checkCapture();
-  }
-  if(point.capturing.length) {
-    point.capturing.forEach(cap => {
-      gameState.playerState[gameState.turn > 0 ? 'bCaptures' : 'wCaptures']++;
-      cap.groupMembers = [];
-      cap.stone = checkKo(point, cap) ? 'k' : 0;
-    })
-  }
-}
-
-function editTerritory(evt) {
-  let placement = [ parseInt(evt.target.closest('td').id.split('-')[0]), parseInt(evt.target.closest('td').id.split('-')[1]) ];
-  let point = findPointFromIdx(placement);
-  point.cycleTerritory();
-  renderGame();
-}
-
 function checkKo(point, cap) {
   if (!point.getLiberties().length && cap.checkNeighbors().filter(stone => stone.stone === gameState.turn * -1) 
     && point.capturing.length === 1) return true;
 }
 
-function clickBoard(evt) {
-  evt.stopPropagation();
-  if (gameState.pass > 1 || gameState.winner) return editTerritory(evt);
-  // checks for placement and pushes to cell
-  let placement = [ parseInt(evt.target.closest('td').id.split('-')[0]), parseInt(evt.target.closest('td').id.split('-')[1]) ];
-  console.log(placement);
-  console.log(evt);
-  let point = findPointFromIdx(placement);
-  //checks that this placement was marked as legal
-  if ( !checkLegal(point) ) return;
-  clearKo();
-  clearPass();
-  resolveCaptures(point);
-  point.stone = gameState.turn;
-  point.joinGroup();
-  clearCaptures();
-  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: ${point.pos}`)
-  gameState.turn*= -1;
-  renderGame();
-}
-
-function clearKo() {
-  for (let point in boardState) {
-    point = boardState[point];
-    point.stone = point.stone === 'k' ? 0 : point.stone;
-  }
-}
-
-function clearPass() {
-  gameState.pass = 0;
+function playSound(point) { //plays louder sounds for tenuki and for captures
+  if (point.capturing.length || (gameState.boardSize === 19 && gameState.gameRecord.length > 90 && point.groupMembers.length === 1)
+    || (gameState.boardSize === 13 && gameState.gameRecord.length > 40 && point.groupMembers.length === 1)) {
+      soundPlayerEl.src = PLACEMENT_SOUNDS.loud[Math.floor(Math.random() * 5)];
+      soundPlayerEl.play();
+    } else {
+      soundPlayerEl.src = PLACEMENT_SOUNDS.soft[Math.floor(Math.random() * 8)];
+      soundPlayerEl.play();
+    }
 }
 
 function clearCaptures() {
@@ -520,70 +503,73 @@ function clearCaptures() {
   }
 }
 
-function initBoard() {
-  let i = 0;
-  while (i < gameState.boardSize * gameState.boardSize) {
-    let point = new Point( Math.floor(i / gameState.boardSize) + 1, i % gameState.boardSize + 1)
-    boardState.push(point);
-    i++;
-  }
-  initHandi();
+function clickPass(evt) {
+  if (evt.target.parentElement.id === `${STONES_DATA[gameState.turn]}-bowl`) playerPass();
 }
 
-function initHandi() {
-  if (gameState.handicap < 2) return;
-  HANDI_PLACE[gameState.boardSize][gameState.handicap].forEach(pt => {
-    if (!pt) return;
-    let handi = findPointFromIdx(pt);
-    handi.stone = 1;
-    handi.joinGroup();
-  })
-}
-
-function getDate() {
-  let d = new Date;
-  return `${d.getFullYear()}-${String(d.getMonth()+1).charAt(-1)||0}${String(d.getMonth()+1).charAt(-0)}-${String(d.getDate()).charAt(-1)||0}${String(d.getDate()+1).charAt(-0)}`
-}
-function init() {
-  gameState.gameMeta.date = getDate();
-  gameState.komi = 5.5;
-  gameState.handicap = 0;
-  gameState.winner = null;
-  gameState.pass = null;
-  gameState.boardSize = 9;
-  gameState.playerState.bCaptures = 0;
-  gameState.playerState.wCaptures = 0;
-  gameState.gameRecord = [];
-  boardState = [];
-  gameState.gameMeta.start = false;
-  startMenu();
-};
-
-function initGame() {
-  gameState.winner = null;
-  gameState.pass = null;
-  gameState.turn = gameState.handicap ? -1 : 1;
-  gameState.gameMeta.start = true;
-  initBoard();
-  renderBoardInit();
+function playerPass() {
+  // display confirmation message
+  clearKo();
+  clearCaptures();
+  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: pass`)
+  gameState.pass++;
+  if (gameState.pass === 2) return endGame();
+  gameState.turn*= -1;
   renderGame();
 }
-    
-function renderGame() {
-  if (gameState.winner || gameState.pass > 1) {
-    renderTerritory();
-    renderMessage();
-  }
-  blackNameDisplayEl.textContent = 
-  `${gameState.playerMeta.b.name},
-  ${gameState.playerMeta.b.rank}`;
-  whiteNameDisplayEl.textContent = 
-  `${gameState.playerMeta.w.name},
-  ${gameState.playerMeta.w.rank}`;
-  gameState.gameRecord.length? renderTurn() : renderFirstTurn();
-  renderBoardState();
-  renderCaps();
+
+function clickMenuOpen() {
+  modalEl.style.visibility = 'visible';
+  renderMenu();
 }
+
+function hoverPreview(evt) {
+  evt.stopPropagation();
+  if (gameState.pass > 1 || gameState.winner) return;
+  // renders preview stone if move is legal
+  let hover = evt.target.closest('td').id.split('-');
+  hover = [parseInt(hover[0]), parseInt(hover[1])]
+  let point = findPointFromIdx(hover);
+  if (checkLegal(point)) {
+    point.legal = true; // legal
+    renderPreview(point);
+  }
+}
+
+/*----- render functions ----------------------*/
+/*----- meta render -----*/
+
+function renderMenu() {
+  dateEl.textContent = gameState.gameMeta.date;
+  if (gameState.gameMeta.start) {
+    gameStartEl.value = "New Game";
+    komiSuggestEl.value = "Close Menu";
+  }
+  renderKomiSlider()
+  renderHandiSlider();
+  renderBoardSizeRadio();
+  blackRankEl.textContent = RANKS[gameState.playerMeta.b.rank];
+  whiteRankEl.textContent = RANKS[gameState.playerMeta.w.rank];
+}
+
+function renderKomiSlider() {
+  komiSliderEl.value = gameState.komi;
+  komiDisplayEl.textContent = gameState.komi;
+  if (gameState.gameMeta.start) komiSliderEl.setAttribute('disabled', true);
+}
+
+function renderHandiSlider() {
+  handiSliderEl.value = gameState.handicap;
+  handiDisplayEl.textContent = gameState.handicap;
+  if (gameState.gameMeta.start) handiSliderEl.setAttribute('disabled', true);
+}
+
+function renderBoardSizeRadio() {
+  boardSizeEl.value = gameState.boardSize;
+  if (gameState.gameMeta.start) boardSizeRadioEls.forEach(el => el.setAttribute('disabled', true));
+}
+
+/*----- game render -----*/
 
 function renderBoardInit() {
   renderClearBoard();
@@ -592,28 +578,9 @@ function renderBoardInit() {
   renderBoardTableStyle();
 }
 
-function renderHoshi() { // gets hoshi placement from handiplace const and adds a class to dot elem
-  let hoshi = HANDI_PLACE[gameState.boardSize].slice(-1);
-  hoshi = hoshi[0]
-  hoshi.forEach(star => {
-    console.log(hoshi);
-    console.log(`star: ${star[0][0]}
-    ${star[0][1]} end star`)
-    let boardPt = document.getElementById(`${star[0]}-${star[1]}`).getElementsByClassName('stone')[0];
-    console.log(boardPt);
-    boardPt.className += ' hoshi' });
-}
-
 function renderClearBoard() {
   boardEl.innerHTML = '';
   boardEl.classList = '';
-}
-
-function renderBoardTableStyle() {
-  document.querySelectorAll('#board-space td[id^="1-"]').forEach(pt => pt.className += 'top ');
-  document.querySelectorAll(`#board-space td[id^="${gameState.boardSize}-"]`).forEach(pt => pt.className += 'btm ');
-  document.querySelectorAll('#board-space td[id$="-1"]').forEach(pt => pt.className += 'lft ');
-  document.querySelectorAll(`#board-space td[id$="-${gameState.boardSize}"]`).forEach(pt => pt.className += 'rgt ');
 }
 
 function renderBoardTableRows() {
@@ -628,6 +595,7 @@ function renderBoardTableRows() {
   boardEl.classList = `board-${gameState.boardSize}x${gameState.boardSize}`;
 }
 
+// iterator ^ becomes x index ̌
 function renderBoardTableCells(x) {
   let y = 1
   let cells = '';
@@ -643,6 +611,69 @@ function renderBoardTableCells(x) {
     y++;
   }
   return cells;
+}
+
+function renderHoshi() { // gets hoshi placement from handiplace const and adds a class to dot elem
+  let hoshi = HANDI_PLACE[gameState.boardSize].slice(-1);
+  hoshi = hoshi[0]
+  hoshi.forEach(star => {
+    let boardPt = document.getElementById(`${star[0]}-${star[1]}`).getElementsByClassName('stone')[0];
+    boardPt.className += ' hoshi' });
+}
+
+function renderBoardTableStyle() {
+  document.querySelectorAll('#board-space td[id^="1-"]').forEach(pt => pt.className += 'top ');
+  document.querySelectorAll(`#board-space td[id^="${gameState.boardSize}-"]`).forEach(pt => pt.className += 'btm ');
+  document.querySelectorAll('#board-space td[id$="-1"]').forEach(pt => pt.className += 'lft ');
+  document.querySelectorAll(`#board-space td[id$="-${gameState.boardSize}"]`).forEach(pt => pt.className += 'rgt ');
+}
+
+function renderGame() {
+  if (gameState.winner || gameState.pass > 1) {
+    renderTerritory();
+    renderMessage();
+  }
+  blackNameDisplayEl.textContent = 
+  `${gameState.playerMeta.b.name},
+  ${RANKS[gameState.playerMeta.b.rank]}`;
+  whiteNameDisplayEl.textContent = 
+  `${gameState.playerMeta.w.name},
+  ${RANKS[gameState.playerMeta.w.rank]}`;
+  gameState.gameRecord.length ? renderTurn() : renderFirstTurn();
+  renderBoardState();
+  renderCaps();
+}
+
+function renderFirstTurn() {
+  document.getElementById(`${STONES_DATA[gameState.turn]}-bowl`).toggleAttribute('data-turn');
+}
+
+function renderTurn() {
+  if (gameState.winner || gameState.pass > 1) document.querySelectorAll(`.bowl`).forEach(bowl => {
+    bowl.removeAttribute('data-turn');
+    bowl.toggleAttribute('data-turn');
+  });
+  document.querySelectorAll(`.bowl`).forEach(bowl => bowl.toggleAttribute('data-turn'));
+}
+
+function renderBoardState() {
+  boardState.forEach(val => {
+    let stoneElem = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).getElementsByClassName('stone')[0];
+    stoneElem.setAttribute("data-stone", STONES_DATA[val.stone]);
+  })
+}
+
+function renderCaps() {
+  blackCapsEl.textContent = gameState.playerState.bCaptures;
+  whiteCapsEl.textContent = gameState.playerState.wCaptures;
+}
+
+function renderPreview(hoverPoint) {
+  boardState.forEach(val => {
+    let dot = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).getElementsByClassName('dot')[0];
+    dot.setAttribute("data-dot", val.legal === true && val.pos[0] === hoverPoint.pos[0] && val.pos[1] === hoverPoint.pos[1] 
+    ? DOTS_DATA[gameState.turn] : DOTS_DATA[0]);
+  })
 }
 
 function renderMessage() {
@@ -670,36 +701,40 @@ function renderTerritory() {
   })
 }
 
-function renderFirstTurn() {
-  document.getElementById(`${STONES_DATA[gameState.turn]}-bowl`).toggleAttribute('data-turn');
-}
-function renderTurn() {
-  if (gameState.winner || gameState.pass > 1) document.querySelectorAll(`.bowl`).forEach(bowl => {
-    bowl.removeAttribute('data-turn');
-    bowl.toggleAttribute('data-turn');
+/*----- endgame functions -----*/
 
-  });
-  document.querySelectorAll(`.bowl`).forEach(bowl => bowl.toggleAttribute('data-turn'));
+function clickResign(evt) {
+  if (evt.target.parentElement.id === `${STONES_DATA[gameState.turn]}-caps-space`) playerResign();
 }
 
-function renderBoardState() {
-  boardState.forEach(val => {
-    let stoneElem = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).getElementsByClassName('stone')[0];
-    stoneElem.setAttribute("data-stone", STONES_DATA[val.stone]);
-  })
+function playerResign() {
+  // display confirmation message
+  gameState.pass = -1;
+  gameHudEl.style.visibility = "visible";
+  gameHudEl.textContent = "Do you want to resign?";
 }
 
-function renderCaps() {
-  blackCapsEl.textContent = gameState.playerState.bCaptures;
-  whiteCapsEl.textContent = gameState.playerState.wCaptures;
+function clickGameHud() {
+  if (gameState.pass > 1 && !gameState.winner) calculateWinner();
+  if (gameState.pass < 0) confirmResign();
 }
 
-function renderPreview(hoverPoint) {
-  boardState.forEach(val => {
-    let dot = document.getElementById(`${val.pos[0]}-${val.pos[1]}`).getElementsByClassName('dot')[0];
-    dot.setAttribute("data-dot", val.legal === true && val.pos[0] === hoverPoint.pos[0] && val.pos[1] === hoverPoint.pos[1] ? DOTS_DATA[gameState.turn] : DOTS_DATA[0]);
+function confirmResign() {
+  gameState.gameRecord.push(`${STONES_DATA[gameState.turn]}: resign`);
+  gameState.winner = STONES_DATA[gameState.turn * -1];
+  endGame();
+}
 
-  })
+function endGame() {
+  if (!gameState.winner) endGameSetTerritory()
+  renderGame();
+}
+
+function editTerritory(evt) {
+  let placement = [ parseInt(evt.target.closest('td').id.split('-')[0]), parseInt(evt.target.closest('td').id.split('-')[1]) ];
+  let point = findPointFromIdx(placement);
+  point.cycleTerritory();
+  renderGame();
 }
 
 function calculateWinner() {
@@ -765,9 +800,4 @@ function emptyPointSetTerritory(emptyPoints) {
         else grp.territory = b > w ? 1 : -1;
       })
     });
-}
-
-function endGame() {
-  if (!gameState.winner) endGameSetTerritory()
-  renderGame();
 }

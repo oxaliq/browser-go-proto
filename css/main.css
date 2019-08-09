@@ -48,6 +48,7 @@ body {
     "submit";
   font-family: 'La Belle Aurore', cursive;
   min-height: 0;
+  max-height: 100vh;
   z-index: 3;
 }
 
@@ -201,7 +202,7 @@ content {
   /* border: solid black; */
   border-radius: 50%;
   background-color: rgb(116, 48, 17);
-  background: radial-gradient(closest-corner at 52% 46%, rgba(30, 5, 0, 0.5) 0%, rgb(0,0,0,0.5)35%, rgb(116,48,17) 48%, rgb(140, 60, 40) 52%, rgb(116, 48, 17) 65%, rgb(100,40,5) 70%, rgb(80, 20, 0) 80%);
+  background: radial-gradient(farthest-corner at 48% 54%, rgba(30, 5, 0, 0.25) 0%, rgba(30, 5, 0, 0.45) 2%, rgba(30, 5, 0, 0.75) 32%, rgb(0,0,0,0.85)35%, rgb(116,48,17) 48%, rgb(140, 60, 40) 52%, rgb(100, 40, 5) 55%, rgb(116, 48, 17) 58%, rgb(140,60,40) 65%, rgb(100, 40, 5) 80%, rgb(80, 20, 0) 90%);
   box-shadow: -1vmin 2vmin 1.5vmin rgba(83, 53, 35, 0.61);
   display: flex;
   align-items: center;
@@ -216,7 +217,16 @@ content {
   height: 100%;
   width: 100%;
   border-radius: 50%;
+  background-size: cover;
   z-index: -1;
+}
+
+#white-stone-image {
+  background-image: url(../images/white-stones-bowl.jpg);
+}
+
+#black-stone-image {
+  background-image: url(../images/black-stones-bowl.jpg);
 }
 
 .bowl[data-turn]:hover p {
@@ -495,17 +505,8 @@ td .dot[data-dot="dame"] {
 @media only screen and (min-width: 900px) {
   
   #menu {
-    grid-template-columns: 40vw;
-    grid-template-rows: auto auto 40vw auto;
-  }
-  
-}
-
-@media only screen and (min-width: 1200px) {
-  
-  #menu {
-    grid-template-columns: 35vw;
-    grid-template-rows: auto auto 35vw auto;
+    grid-template-columns: 55vh;
+    grid-template-rows: auto auto 55vh auto;
   }
   
 }
