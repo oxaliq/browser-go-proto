@@ -341,6 +341,28 @@ function initHandi() {
 }
 
 /*----- meta functions -----*/
+
+// include save function
+  // unpack existing gamerecords
+  // globalGameRecord = JSON.parse(localStorage.getItem('browser-go-saved-games'));
+  // append current game record to globalGameRecord - globalGameRecord.gameName = gameState
+  // stringify all stored gamerecords JSON.stringify(globalGameRecord)
+  // localStorage.clear()
+  // localStorage.setItem('browser-go-saved-games')
+
+// load function
+  // unpack existing gamerecords - globalGameRecord = JSON.parse(localStorage.getItem('browser-))
+  // display each game record name - Object.keys(globalGameRecord).forEach( ... )
+  // upon user selection initgame from gameState meta data
+
+// undo last move
+  // set up gameState var to track number of 'misclicks'
+  // after every move JSON.stringify(localGameRecord)
+  // localStorage.clear()
+  // localStorage.setItem()
+  // on undo click - load JSON.parse(localStorage.getItem())
+  // reset gameState
+
 // plus general purpose
 
 function findPointFromIdx(arr) {
@@ -480,7 +502,7 @@ function clearOverlay() {
   }
 }
 
-function checkKo(point, cap) {
+function checkKo(point, cap) { // currently prevents snapback
   if (!point.getLiberties().length && cap.checkNeighbors().filter(stone => stone.stone === gameState.turn * -1) 
     && point.capturing.length === 1) return true;
 }
