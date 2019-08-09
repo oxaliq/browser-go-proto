@@ -72,10 +72,10 @@ Browser Go was written in Visual Studio Code and originally deployed with GitHub
 ---
 ## Using Browser Go
 ---
-[Play Browser Go Here](https://github.com/sorrelbri/browser-go) 
+[Play Browser Go Here](https://sorrelbri.github.io/browser-go/) 
 
 ### Starting a Game
-![image of game menu at start](images/gameplay-images/browser-go-new-game-screen.png){ width=200px }
+![image of game menu at start](images/gameplay-images/browser-go-new-game-screen.png)
 
 Upon initiation of a new game session, Browser Go will display the new game menu. Here, you will be asked to confirm the size of the board as well as komi and handicap settings. Enter both player's information here. \
 Pressing the "Suggest Komi" button will cause Browser Go to calculate your game's komi and handicap stones according to the American Go Association guidelines for your selected board size. If these concepts are unfamiliar, please see [About Go.](#about-go) \
