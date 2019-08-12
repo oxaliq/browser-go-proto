@@ -790,6 +790,7 @@ function endGameSetTerritory() {
   emptyPoints.forEach(pt => pt.joinGroup());
   emptyPointSetTerritory(emptyPoints);
   groupsMarkDeadLive();
+  // reviseTerritory();
 }
 
 function groupsMarkDeadLive() {
@@ -822,4 +823,10 @@ function emptyPointSetTerritory(emptyPoints) {
         else grp.territory = b > w ? 1 : -1;
       })
     });
+}
+
+function reviseTerritory() {
+  // count eyes
+    // for each group marked live get liberties
+      // 
 }
