@@ -1,6 +1,6 @@
 # Browser Go 
 ##### 0.9
-A two-player [in-browser Go application](https://sorrelbri.github.io/browser-go/) developed by Sorrel June. 
+A two-player [in-browser Go application](https://sorrelbri.github.io/browser-go-proto/) developed by Sorrel June. 
 
 ![Screenshot of 19x19 game in progress](images/gameplay-images/browser-go-screenshot-full-board.png)
 ![Screenshot of 13x13 game in progress](images/gameplay-images/browser-go-screenshot.png)
@@ -72,7 +72,7 @@ Browser Go was written in Visual Studio Code and originally deployed with GitHub
 ---
 ## Using Browser Go
 ---
-[Play Browser Go Here](https://sorrelbri.github.io/browser-go/) 
+[Play Browser Go Here](https://sorrelbri.github.io/browser-go-proto/) 
 
 ### Starting a Game
 ![image of game menu at start](images/gameplay-images/browser-go-new-game-screen.png)
@@ -112,7 +112,7 @@ In the case of mutual pass, Browser Go ends a territory counting state. Seen in 
 
 Browser Go will do it's best to count territory accurately according to Japanese territory counting rules, but it is always best to review and submit any changes before finalizing the game.
 
-![image of end game count of 13x13 board, Browser Go Guest has won by a large margin. Browser Go has correctly calculated the status of all groups and has correctly calculated all but 3 points.]
+![image of end game count of 13x13 board, Browser Go Guest has won by a large margin. Browser Go has correctly calculated the status of all groups and has correctly calculated all but 3 points.](images/gameplay-images/browser-go-ending-game.png)
 
 ---
 ## The Future of Browser Go
